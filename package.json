@@ -1,0 +1,29 @@
+{
+  "name": "opencpn_harmonics_gen",
+  "version": "0.1.1",
+  "description": "",
+  "keywords": [],
+  "author": "dlaw@gmail.com",
+  "license": "ISC",
+  "scripts": {
+    "clean": "rm dist/bundle.js",
+    "format-check": "prettier --check . & tsc --noEmit",
+    "format": "prettier --write .",
+    "start": "parcel --log-level verbose src/index.html",
+    "build-prod": "parcel build src/index.html"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.8",
+    "jquery": "^4.0.0",
+    "papaparse": "^5.5.3",
+    "popper.js": "^1.16.1",
+    "world-countries": "^5.1.0"
+  },
+  "devDependencies": {
+    "@parcel/config-default": "^2.16.4",
+    "@types/papaparse": "^5.5.2",
+    "parcel": "^2.16.4",
+    "parcel-reporter-static-files-copy": "^1.5.3",
+    "prettier": "3.8.1"
+  }
+}
