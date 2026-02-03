@@ -94,22 +94,106 @@ function list_countries(parsed){
   return countries_found;
 }
 
+function mask_child_checkboxes(address: string, state: boolean) {
+  const form_div = document.querySelector("div#regions");
+  const all_checkboxes = form_div.querySelectorAll("input");
+
+  var children = [];
+  for(const checkbox of all_checkboxes) {
+    if (checkbox.value.startsWith(address) && checkbox.value !== address) {
+      children.push(checkbox);
+    }
+  }
+  console.log(children);
+  for (const child of children) {
+    child.indeterminate = state;
+  }
+}
+
+globalThis.index = 0;
+function form_element(name: string, indent: int, address: string) {
+  const row = document.createElement("div");
+  row.id = `row-${index}`;
+  row.classList.add("row");
+  //row.classList.add("border");
+
+  // Handle row highlighting.
+  if(globalThis.index % 2) {
+    row.classList.add("bg-light");
+  }
+  row.addEventListener("mouseenter", (event) => {
+    row.classList.remove("bg-light");
+    row.classList.add("bg-secondary");
+  });
+  row.addEventListener("mouseleave", (event) => {
+    row.classList.remove("bg-secondary");
+    const row_id = Number(row.id.split("-")[1])
+    if (row_id % 2){
+      row.classList.add("bg-light");
+    }
+  });
+
+  if(indent > 0) {
+    const spacer = document.createElement("div");
+    spacer.classList.add(`col-${indent}`);
+    row.appendChild(spacer);
+  }
+
+  const label = document.createElement("div");
+  label.textContent = name;
+  label.classList.add(`col-${11 - indent}`);
+  row.appendChild(label);
+
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  //checkbox.id = ...
+  checkbox.value = address;
+  checkbox.classList.add("col-1");
+  row.appendChild(checkbox);
+
+  if(indent < 2) {
+    // Either a region or subregion was clicked.
+    checkbox.addEventListener("click", (event) => {
+      console.log(event.target.value, event.target.checked);
+      mask_child_checkboxes(event.target.value, event.target.checked);
+    });
+  }
+
+  globalThis.index += 1;
+  return row;
+}
+
 function display_countries(countries_found){
+  const form_div = document.querySelector("div#regions");
+  if (!form_div) {
+    console.error("Could not find DIV."); 
+    return;
+  }
+  form_div.classList.add("container");
+
   const countries_details = country_code_lookup(countries_found);
- 
+  //var address = ""; 
   const countries_keys = Array.from(countries_details.keys()).sort();
   for (const region_label of countries_keys) {
     console.log(`${region_label}`);
-    const region_map = countries_details.get(region_label);
+    const region_address = region_label;
+    form_div.appendChild(form_element(region_label, 0, region_address));
 
+    const region_map = countries_details.get(region_label);
+    
     const region_keys = Array.from(region_map.keys()).sort();
     for (const subregion_label of region_keys) {
       console.log(`    ${subregion_label}`);
+      const subregion_address = `${region_address}|${subregion_label}`;
+      form_div.appendChild(form_element(subregion_label, 1, subregion_address));
+
       const subregion_map = region_map.get(subregion_label);
 
       const subregion_keys = Array.from(subregion_map.keys()).sort();
       for (const name of subregion_keys) {
         console.log(`        ${name}`);
+        const address = `${region_address}|${subregion_label}|${name}`;
+        form_div.appendChild(form_element(name, 2, address));
       }
     }
   }
