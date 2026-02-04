@@ -7,9 +7,51 @@
     <script src=https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js integrity=sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q crossorigin=anonymous></script>
     <script src=https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js integrity=sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl crossorigin=anonymous></script>
 
+    <div id=page-info>    
+      <nav aria-label=breadcrumb>
+        <ol class=breadcrumb>
+          <li class="active breadcrumb-item" aria-current=page>Info</li>
+          <li class="active breadcrumb-item"><a href=#page-config>Configuration</a></li>
+          <li class="active breadcrumb-item d-none" id=page-info-summary_crumb><a href=#page-summary>Summary</a></li>
+        </ol>
+      </nav>
+      <a class="btn btn-primary" href=#page-config role=button>Continue</a>
+    </div>
+
+    <div id=page-config class="container d-none">    
+      <nav aria-label=breadcrumb>
+        <ol class=breadcrumb>
+          <li class="active breadcrumb-item"><a href=#page-info>Info</a></li>
+          <li class="breadcrumb-item hidden" aria-current=page>Configuration</li>
+          <li class="active breadcrumb-item"><a href=#page-summary>Summary</a></li>
+        </ol>
+      </nav>
+      <div class="justify-content-md-center row">
+        <div class="card col-12">
+          <div class=card-body>
+            Select the Regions, Sub-Regions or Countries you with to generate Harmonics files for.<br>
+            When you have finished selecting, click ahead to the <a href=#page-summary class="badge badge-primary">Summary</a> section.
+          </div>
+        </div>
+        <div class=col-12>
+          <div class=card>
+            <div id=regions></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id=page-summary class=d-none>    
+      <nav aria-label=breadcrumb>
+        <ol class=breadcrumb>
+          <li class="active breadcrumb-item"><a href=#page-info>Info</a></li>
+          <li class="active breadcrumb-item"><a href=#page-config>Configuration</a></li>
+          <li class="breadcrumb-item hidden" aria-current=page>Summary</li>
+        </ol>
+      </nav>
+    </div>
+
     <div id=app></div>
-    <div id=data></div>
-    <div id=regions></div>
-    <script type=module src=/OpenCPN_harmonics_chooser.e8dd0a7d.js></script>
+    <script type=module src=/OpenCPN_harmonics_chooser.ab7a8b71.js></script>
   
 

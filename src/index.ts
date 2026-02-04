@@ -10,4 +10,27 @@ const raw_data_url = "./data/122848.csv";
 
 pull_data(raw_data_url, consume_raw_data);
 
-console.log("hello world! 4.");
+window.onload = () => {
+  window.location.hash = "";
+}
+
+$(window).on('hashchange', change_page);
+
+function change_page(event) {
+  console.log(window.location.hash);
+  if(window.location.hash === "#page-info" || window.location.hash === "") {
+    document.querySelector("div#page-info").classList.remove("d-none");
+    document.querySelector("div#page-config").classList.add("d-none");
+    document.querySelector("div#page-summary").classList.add("d-none");
+  } else if(window.location.hash === "#page-config") {
+    document.querySelector("div#page-info").classList.add("d-none");
+    document.querySelector("div#page-config").classList.remove("d-none");
+    document.querySelector("div#page-summary").classList.add("d-none");
+
+    document.querySelector("li#page-info-summary_crumb").classList.remove("d-none");
+  } else if(window.location.hash === "#page-summary") {
+    document.querySelector("div#page-info").classList.add("d-none");
+    document.querySelector("div#page-config").classList.add("d-none");
+    document.querySelector("div#page-summary").classList.remove("d-none");
+  }
+}

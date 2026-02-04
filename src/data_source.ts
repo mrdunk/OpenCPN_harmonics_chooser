@@ -1,15 +1,8 @@
 import Papa from 'papaparse';
 import world_countries from 'world-countries';
-console.log(Papa);
-console.log(world_countries);
 
 export function pull_data(url: string, callback) {
-  const data_div = document.querySelector("div#data");
-  if (data_div) {
-    data_div.textContent = "data_div";
-  }
-
-fetch(url, {
+  fetch(url, {
     method: 'get',
     headers: {
       'content-type': 'text/csv;charset=UTF-8',
@@ -23,13 +16,7 @@ fetch(url, {
     })
     .then((csv) => {
       //console.log("ok: " + csv);
-      if(data_div) {
-        const options = {};
-        //data_div.textContent = csv;
-        data_div.textContent = "got data.";
-        
-        callback(csv);
-      }
+      callback(csv);
     })
     //.catch((error) => {
     //  console.log(`Could not fetch raw data: ${error}`);
@@ -94,19 +81,32 @@ function list_countries(parsed){
   return countries_found;
 }
 
-function mask_child_checkboxes(address: string, state: boolean) {
+function click_checkbox(event) {
+  var checkbox = event.target;
+  if (event.target.type !== "checkbox") {
+    for (const child of event.target.parentNode.children) {
+      if (child.type === "checkbox") {
+        checkbox = child;
+        break;
+      }
+    }
+    checkbox.checked = ! checkbox.checked;
+  }
+
+  console.log(checkbox.type, checkbox.checked); 
+
   const form_div = document.querySelector("div#regions");
   const all_checkboxes = form_div.querySelectorAll("input");
-
+  const address = checkbox.value;
   var children = [];
-  for(const checkbox of all_checkboxes) {
-    if (checkbox.value.startsWith(address) && checkbox.value !== address) {
-      children.push(checkbox);
+  for(const candidate of all_checkboxes) {
+    if (candidate.value.startsWith(address) && candidate.value !== address) {
+      children.push(candidate);
     }
   }
-  console.log(children);
+
   for (const child of children) {
-    child.indeterminate = state;
+    child.checked = checkbox.checked;
   }
 }
 
@@ -115,7 +115,7 @@ function form_element(name: string, indent: int, address: string) {
   const row = document.createElement("div");
   row.id = `row-${index}`;
   row.classList.add("row");
-  //row.classList.add("border");
+  row.classList.add("border");
 
   // Handle row highlighting.
   if(globalThis.index % 2) {
@@ -142,6 +142,7 @@ function form_element(name: string, indent: int, address: string) {
   const label = document.createElement("div");
   label.textContent = name;
   label.classList.add(`col-${11 - indent}`);
+  label.classList.add('display-5');
   row.appendChild(label);
 
   const checkbox = document.createElement('input');
@@ -149,15 +150,11 @@ function form_element(name: string, indent: int, address: string) {
   //checkbox.id = ...
   checkbox.value = address;
   checkbox.classList.add("col-1");
+  checkbox.classList.add("form-control");
+  checkbox.classList.add("form-control-sm");
   row.appendChild(checkbox);
 
-  if(indent < 2) {
-    // Either a region or subregion was clicked.
-    checkbox.addEventListener("click", (event) => {
-      console.log(event.target.value, event.target.checked);
-      mask_child_checkboxes(event.target.value, event.target.checked);
-    });
-  }
+  row.addEventListener("click", click_checkbox);
 
   globalThis.index += 1;
   return row;
@@ -169,6 +166,7 @@ function display_countries(countries_found){
     console.error("Could not find DIV."); 
     return;
   }
+  form_div.classList.add("form-group");
   form_div.classList.add("container");
 
   const countries_details = country_code_lookup(countries_found);
@@ -198,6 +196,8 @@ function display_countries(countries_found){
     }
   }
 }
+
+
 
 export function consume_raw_data(csv: string) {
   const parsed = parse_data(csv);
