@@ -2,13 +2,6 @@ import { pull_data, display_countries } from "./data_source";
 import { consume_raw_station_data, format_countries } from "./parse_data";
 import { generate_summary } from "./summary";
 
-// Data originally from: https://www.seanoe.org/data/00980/109129/data/122848.csv
-const sitation = `
-Hart-Davis Michael, Dettmering Denise, Seitz Florian (2025). TICON-4: TIdal CONstants based on GESLA-4 sea-level records. SEANOE. https://doi.org/10.17882/109129
-
-Piccioni Gaia, Dettmering Denise, Bosch Wolfgang, Seitz Florian (2019). TICON: TIdal CONstants based on GESLA sea-level records from globally located tide gauges. Geoscience Data Journal. 6 (2). 97-104. https://doi.org/10.1002/gdj3.72, https://archimer.ifremer.fr/doc/00838/94993/
-`;
-
 
 function time_config() {
   $("input#time-strategy-local").click(function(event){
@@ -61,19 +54,32 @@ const APP = {
       document.querySelector("div#page-info").classList.remove("d-none");
       document.querySelector("div#page-config").classList.add("d-none");
       document.querySelector("div#page-summary").classList.add("d-none");
+      document.querySelector("div#page-download").classList.add("d-none");
     } else if(window.location.hash === "#page-config") {
       document.querySelector("div#page-loading").classList.add("d-none");
       document.querySelector("div#page-info").classList.add("d-none");
       document.querySelector("div#page-config").classList.remove("d-none");
       document.querySelector("div#page-summary").classList.add("d-none");
+      document.querySelector("div#page-download").classList.add("d-none");
 
-      document.querySelector("li#page-info-summary_crumb").classList.remove("d-none");
+      document.querySelector("li#page-info-summary-crumb").classList.remove("d-none");
     } else if(window.location.hash === "#page-summary") {
       document.querySelector("div#page-loading").classList.add("d-none");
       document.querySelector("div#page-info").classList.add("d-none");
       document.querySelector("div#page-config").classList.add("d-none");
       document.querySelector("div#page-summary").classList.remove("d-none");
+      document.querySelector("div#page-download").classList.add("d-none");
+
       generate_summary(APP.countries_details);
+    } else if(window.location.hash === "#page-download") {
+      document.querySelector("div#page-loading").classList.add("d-none");
+      document.querySelector("div#page-info").classList.add("d-none");
+      document.querySelector("div#page-config").classList.add("d-none");
+      document.querySelector("div#page-summary").classList.add("d-none");
+      document.querySelector("div#page-download").classList.remove("d-none");
+
+      document.querySelector("li#page-info-download-crumb").classList.remove("d-none");
+      document.querySelector("li#page-info-download-crumb-2").classList.remove("d-none");
     }
   }
 

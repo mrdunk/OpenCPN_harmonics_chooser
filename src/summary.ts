@@ -44,7 +44,8 @@ function display_row(
   sub_region: string,
   country: string,
   selected: number,
-  total: number
+  total: number,
+  timezones = null
 ) {
   const row = document.createElement("div");
   row.classList.add("row");
@@ -78,15 +79,31 @@ function display_row(
   const timezone_div = document.createElement("div");
   timezone_div.classList.add("col-1");
   if( total === 0) {
-    timezone_div.textContent = "timezone";
+    timezone_div.textContent = timezones[0];
+    if(timezones.length > 1) {
+      timezone_div.textContent += 
+        ` Warning: ${timezones.length} timezones for this country.`;
+    }
   }
   row.appendChild(timezone_div);
 }
 
-function country_to_timezone(country) {
+function country_to_timezone(region, sub_region, country, countries_details) {
+  if( $("input#time-strategy-global").is(':checked') &&
+    $("input#time-strategy-global").val() == "global") {
+    // Single timezone for all stations.
+    return [$("select#timezone").val(), ];
+  }
+
+  // Attempt to use local time for stations.
+  const list = [];
+  for(const t of countries_details.get(region).get(sub_region).get(country).timezone) {
+    list.push(t.utcOffsetStr);
+  }
+  return list;
 }
 
-function display(regions_nested) {
+function display(regions_nested, countries_details) {
   const report = document.createElement("div");
   report.classList.add("container");
 
@@ -106,7 +123,9 @@ function display(regions_nested) {
    
       for(const country of sub_stats.countries) {
         if (country.selected) {
-          display_row(report, "", "", country.country, 0, 0);
+          const timezone = country_to_timezone(
+            region, sub_region, country.country, countries_details);
+          display_row(report, "", "", country.country, 0, 0, timezone);
         }
       }
     }
@@ -117,5 +136,5 @@ function display(regions_nested) {
 
 export function generate_summary(countries_details) {
   const [regions_nested, countries_flat] = get_selected_countries();
-  display(regions_nested);
+  display(regions_nested, countries_details);
 }

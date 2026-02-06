@@ -1,5 +1,6 @@
 import Papa from 'papaparse';
 import world_countries from 'world-countries';
+import countries_and_timezones from "countries-and-timezones";
 
 // Turn csv data into a JS list of harmonic constituents.
 function parse_data(csv: string){
@@ -101,9 +102,9 @@ function country_code_lookup(codes: Set){
     }
     const subregion = region.get(subregion_label);
 
+    const timezone = countries_and_timezones.getTimezonesForCountry(country_data.cca2);
 
-    subregion.set(common_name, country_data);
-    //console.log(`adding: ${common_name}  to: ${region_label}, ${subregion_label}`);
+    subregion.set(common_name, {country: country_data, timezone: timezone});
   }
 
   return regions;
@@ -119,7 +120,7 @@ export function consume_raw_station_data(csv: string) {
 export function format_countries(stations) {
   const countries = new Set(stations.keys());
   const countries_details = country_code_lookup(countries);
-
+  console.log(countries_details);
   return countries_details;
 }
 
