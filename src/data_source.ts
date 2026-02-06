@@ -1,8 +1,6 @@
-import Papa from 'papaparse';
-import world_countries from 'world-countries';
 
-export function pull_data(url: string, callback) {
-  fetch(url, {
+export function pull_data(url: string, consume_raw_data_callback) {
+  return fetch(url, {
     method: 'get',
     headers: {
       'content-type': 'text/csv;charset=UTF-8',
@@ -14,71 +12,14 @@ export function pull_data(url: string, callback) {
       }
       return response.text();
     })
-    .then((csv) => {
-      //console.log("ok: " + csv);
-      callback(csv);
-    })
+    //.then((csv) => {
+    //  //console.log("ok: " + csv);
+    //  consume_raw_data_callback(csv);
+    //})
     //.catch((error) => {
     //  console.log(`Could not fetch raw data: ${error}`);
     //})
   ;
-}
-
-function parse_data(csv: string){
-  const harmonics_data = Papa.parse(csv, {header: true, skipEmptyLines: true});
-  console.log(harmonics_data.data);
-  console.log(harmonics_data.errors);
-  console.log(harmonics_data.meta);
-  return harmonics_data;
-}
-
-function country_code_lookup(codes: Set){
-  const regions = new Map();
-
-  for (const country_data of world_countries) {
-    const country_code = country_data.cca3;
-    if(! country_code in codes) {
-      continue;
-    }
-  
-    const region_label = country_data.region;
-    const subregion_label = country_data.subregion;
-    const common_name = country_data.name.common;
-
-    if (! regions.has(region_label)) {
-      regions.set(region_label, new Map());
-    }
-    const region = regions.get(region_label);
-
-
-    if (! region.has(subregion_label)) {
-      region.set(subregion_label, new Map());
-    }
-    const subregion = region.get(subregion_label);
-
-
-    subregion.set(common_name, country_data);
-    console.log(`adding: ${common_name}  to: ${region_label}, ${subregion_label}`);
-  }
-
-  return regions;
-}
-
-function list_countries(parsed){
-  var countries_found = new Set();
-  var error_count = 0
-  for (const entry of parsed.data) {
-    if (! "country" in entry) {
-      error_count += 1;
-      continue;
-    }
-
-    const country = entry.country
-    countries_found.add(country);
-  }
-  console.log(countries_found);
-
-  return countries_found;
 }
 
 function click_checkbox(event) {
@@ -92,8 +33,6 @@ function click_checkbox(event) {
     }
     checkbox.checked = ! checkbox.checked;
   }
-
-  console.log(checkbox.type, checkbox.checked); 
 
   const form_div = document.querySelector("div#regions");
   const all_checkboxes = form_div.querySelectorAll("input");
@@ -160,28 +99,28 @@ function form_element(name: string, indent: int, address: string) {
   return row;
 }
 
-function display_countries(countries_found){
+export function display_countries(countries_details){
   const form_div = document.querySelector("div#regions");
   if (!form_div) {
-    console.error("Could not find DIV."); 
+    console.error("Could not find DIV.");
     return;
   }
   form_div.classList.add("form-group");
   form_div.classList.add("container");
 
-  const countries_details = country_code_lookup(countries_found);
-  //var address = ""; 
+  form_div.innerHTML = "";
+
   const countries_keys = Array.from(countries_details.keys()).sort();
   for (const region_label of countries_keys) {
-    console.log(`${region_label}`);
+    //console.log(`${region_label}`);
     const region_address = region_label;
     form_div.appendChild(form_element(region_label, 0, region_address));
 
     const region_map = countries_details.get(region_label);
-    
+
     const region_keys = Array.from(region_map.keys()).sort();
     for (const subregion_label of region_keys) {
-      console.log(`    ${subregion_label}`);
+      //console.log(`    ${subregion_label}`);
       const subregion_address = `${region_address}|${subregion_label}`;
       form_div.appendChild(form_element(subregion_label, 1, subregion_address));
 
@@ -189,7 +128,7 @@ function display_countries(countries_found){
 
       const subregion_keys = Array.from(subregion_map.keys()).sort();
       for (const name of subregion_keys) {
-        console.log(`        ${name}`);
+        //console.log(`        ${name}`);
         const address = `${region_address}|${subregion_label}|${name}`;
         form_div.appendChild(form_element(name, 2, address));
       }
@@ -197,10 +136,3 @@ function display_countries(countries_found){
   }
 }
 
-
-
-export function consume_raw_data(csv: string) {
-  const parsed = parse_data(csv);
-  const countries = list_countries(parsed);
-  display_countries(countries);
-}

@@ -1,57 +1,152 @@
-<!DOCTYPE html><html lang=en><meta charset=utf-8><meta name=viewport content="width=device-width, initial-scale=1, shrink-to-fit=no"><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css integrity=sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm crossorigin=anonymous><title>OpenCPN HARMONICS file generator.</title><body>
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>OpenCPN HARMONICS file generator.</title>
+  </head>
+  <body>
     <h1>Hello, world! 5</h1>
 
-    
-    
-    <script src=https://code.jquery.com/jquery-3.2.1.slim.min.js integrity=sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN crossorigin=anonymous></script>
-    <script src=https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js integrity=sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q crossorigin=anonymous></script>
-    <script src=https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js integrity=sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl crossorigin=anonymous></script>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-    <div id=page-info>    
-      <nav aria-label=breadcrumb>
-        <ol class=breadcrumb>
-          <li class="active breadcrumb-item" aria-current=page>Info</li>
-          <li class="active breadcrumb-item"><a href=#page-config>Configuration</a></li>
-          <li class="active breadcrumb-item d-none" id=page-info-summary_crumb><a href=#page-summary>Summary</a></li>
-        </ol>
-      </nav>
-      <a class="btn btn-primary" href=#page-config role=button>Continue</a>
+    <div id="page-loading" class="">
+      <p>Loading data...</p>
     </div>
 
-    <div id=page-config class="container d-none">    
-      <nav aria-label=breadcrumb>
-        <ol class=breadcrumb>
-          <li class="active breadcrumb-item"><a href=#page-info>Info</a></li>
-          <li class="breadcrumb-item hidden" aria-current=page>Configuration</li>
-          <li class="active breadcrumb-item"><a href=#page-summary>Summary</a></li>
+    <div id="page-info" class="d-none">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item active" aria-current="page">Info</li>
+          <li class="breadcrumb-item active"><a href="#page-config">Configuration</a></li>
+          <li class="breadcrumb-item active d-none" id="page-info-summary_crumb"><a href="#page-summary">Summary</a></li>
         </ol>
       </nav>
-      <div class="justify-content-md-center row">
-        <div class="card col-12">
-          <div class=card-body>
-            Select the Regions, Sub-Regions or Countries you with to generate Harmonics files for.<br>
-            When you have finished selecting, click ahead to the <a href=#page-summary class="badge badge-primary">Summary</a> section.
+      <a class="btn btn-primary" href="#page-config" role="button">Continue</a>
+    </div>
+
+    <div id="page-config" class="d-none">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item active"><a href="#page-info">Info</a></li>
+          <li class="breadcrumb-item hidden" aria-current="page">Configuration</li>
+          <li class="breadcrumb-item active"><a href="#page-summary">Summary</a></li>
+        </ol>
+      </nav>
+      <div class="container">
+        <div class="row justify-content-lg-center">
+          <div class="col-lg-12">
+            <div class="card">
+              <div class="card-body">
+                Configuration settings for generating your HARMONICs files.<br>
+                When you have finished selecting, click ahead to the <a href="#page-summary" class="badge badge-primary">Summary</a> section.
+              </div>
+            </div>
           </div>
         </div>
-        <div class=col-12>
-          <div class=card>
-            <div id=regions></div>
+        <div class="row justify-content-lg-center">
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Timezones</h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                  Select whether you want times in your tide tables to default to the local timezones for each country
+                  or all be set to a single timezone.
+                </h6>
+                <div class="card-text">
+                  <fieldset class="form-group" id="time-strategy">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" id="time-strategy-local" name="time-strategy" value="local" checked="">
+                      <label class="form-check-label" for="time-strategy-local">
+                        Set each of tidal station to their countries timezone.<br>
+                        <b>Note:</b> This option will only work for countries with a single timezone.
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" id="time-strategy-global" name="time-strategy" value="global">
+                      <label class="form-check-label" for="time-strategy-global">Set all tidal stations to a single timezone.</label>
+                    </div>
+                  </fieldset>
+                </div>
+                <select id="timezone" name="timezone" disabled="">
+                  <option value="-12:00">UTC -12:00</option>
+                  <option value="-11:00">UTC -11:00</option>
+                  <option value="-9:30">UTC -9:30</option>
+                  <option value="-9:00">UTC -9:00</option>
+                  <option value="-8:00">UTC -8:00</option>
+                  <option value="-7:00">UTC -7:00</option>
+                  <option value="-6:00">UTC -6:00</option>
+                  <option value="-5:00">UTC -5:00</option>
+                  <option value="-4:00">UTC -4:00</option>
+                  <option value="-3:30">UTC -3:30</option>
+                  <option value="-3:00">UTC -3:00</option>
+                  <option value="-2:00">UTC -2:00</option>
+                  <option value="-1:00">UTC -1:00</option>
+                  <option value="0:00" selected="">UTC +0:00</option>
+                  <option value="1:00">UTC +1:00</option>
+                  <option value="2:00">UTC +2:00</option>
+                  <option value="3:00">UTC +3:00</option>
+                  <option value="3:30">UTC +3:30</option>
+                  <option value="4:00">UTC +4:00</option>
+                  <option value="4:30">UTC +4:30</option>
+                  <option value="5:00">UTC +5:00</option>
+                  <option value="5:30">UTC +5:30</option>
+                  <option value="5:45">UTC +5:45</option>
+                  <option value="6:00">UTC +6:00</option>
+                  <option value="6:30">UTC +6:30</option>
+                  <option value="7:00">UTC +7:00</option>
+                  <option value="8:00">UTC +8:00</option>
+                  <option value="8:45">UTC +8:45</option>
+                  <option value="9:00">UTC +9:00</option>
+                  <option value="9:30">UTC +9:30</option>
+                  <option value="10:00">UTC +10:00</option>
+                  <option value="10:30">UTC +10:30</option>
+                  <option value="11:00">UTC +11:00</option>
+                  <option value="12:00">UTC +12:00</option>
+                  <option value="12:45">UTC +12:45</option>
+                  <option value="13:00">UTC +14:00</option>
+                  <option value="14:00">UTC +14:00</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Select Countries</h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                  Select the Regions, Sub-Regions or Countries you with to generate Harmonics files for.<br>
+                  Clicking on a Region or Sub-Region will automatically select/deselect all Countries within that Region or Sub-Region.<br>
+                  Clicking on an individual Country will select/deselect that Country.<br>
+                </h6>
+              </div>
+              <div id="regions" class="">Loading data...</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div id=page-summary class=d-none>    
-      <nav aria-label=breadcrumb>
-        <ol class=breadcrumb>
-          <li class="active breadcrumb-item"><a href=#page-info>Info</a></li>
-          <li class="active breadcrumb-item"><a href=#page-config>Configuration</a></li>
-          <li class="breadcrumb-item hidden" aria-current=page>Summary</li>
+    <div id="page-summary" class="d-none">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item active"><a href="#page-info">Info</a></li>
+          <li class="breadcrumb-item active"><a href="#page-config">Configuration</a></li>
+          <li class="breadcrumb-item hidden" aria-current="page">Summary</li>
         </ol>
       </nav>
+      <div id="report">
+      </div>
     </div>
 
-    <div id=app></div>
-    <script type=module src=/OpenCPN_harmonics_chooser.ab7a8b71.js></script>
+    <div id="app"></div>
+    <script type="module" src="/OpenCPN_harmonics_chooser.34df32e0.js"></script>
   
 
+</body></html>
