@@ -1,209 +1,261 @@
-<!DOCTYPE html><html lang="en"><head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!DOCTYPE html><html lang=en><meta charset=utf-8><meta name=viewport content="width=device-width, initial-scale=1, shrink-to-fit=no"><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css integrity=sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm crossorigin=anonymous><title>OpenCPN harmonic file generator.</title><body>
+    
+    
+    <script src=https://code.jquery.com/jquery-3.2.1.slim.min.js integrity=sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN crossorigin=anonymous></script>
+    <script src=https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js integrity=sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q crossorigin=anonymous></script>
+    <script src=https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js integrity=sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl crossorigin=anonymous></script>
 
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
-    <title>OpenCPN harmonic file generator.</title>
-  </head>
-  <body>
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
-    <div id="page-loading" class="">
-      <div class="jumbotron">
-        <h1 class="display-4">OpenCPN harmonic file generator.</h1>
-        <hr class="my-4">
-        <p class="lead">Loading data...</p>
-        <p class="lead">There's a lot of data to read. It may take a minute or two, depending on your computer...</p>
+    <div id=page-loading>
+      <div class=jumbotron>
+        <h1 class=display-4>OpenCPN harmonic file generator.</h1>
+        <hr class=my-4>
+        <p class=lead>Loading data...</p>
+        <p class=lead>
+          There's a lot of data to read. It may take a minute or two, depending
+          on your computer...
+        </p>
       </div>
     </div>
 
-    <div id="page-info" class="d-none">
-      <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item hidden" aria-current="page">Info</li>
-          <li class="breadcrumb-item active"><a href="#page-config">Configuration</a></li>
-          <li class="breadcrumb-item active d-none" id="page-info-summary-crumb"><a href="#page-summary">Summary</a></li>
-          <li class="breadcrumb-item active d-none" id="page-info-download-crumb"><a href="#page-download">Download</a></li>
+    <div id=page-info class=d-none>
+      <nav aria-label=breadcrumb>
+        <ol class=breadcrumb>
+          <li class="breadcrumb-item hidden" aria-current=page>Info</li>
+          <li class="active breadcrumb-item">
+            <a href=#page-config>Configuration</a>
+          </li>
+          <li class="active breadcrumb-item d-none" id=page-info-summary-crumb>
+            <a href=#page-summary>Summary</a>
+          </li>
+          <li class="active breadcrumb-item d-none" id=page-info-download-crumb>
+            <a href=#page-download>Download</a>
+          </li>
         </ol>
       </nav>
-      <div class="jumbotron">
-        <h1 class="display-4">OpenCPN harmonic file generator.</h1>
-        <p class="lead"> This webapp generates configuration files for <a href="https://opencpn.org/">OpenCPN</a>, the "Concise and robust Chart Plotter Navigation software".<br>
-        Specifically it generates harmonic files to provide OpenCPN with the necessary tidal constituents to predict tidal height information at specific tidal stations around the world.<br>
-        If you don't know about OpenCPN, this page won't be of much use to you. I recommend you look at the <a href="https://opencpn.org/">OpenCPN</a> website instead. 
+      <div class=jumbotron>
+        <h1 class=display-4>OpenCPN harmonic file generator.</h1>
+        <p class=lead>
+          This webapp generates configuration files for
+          <a href=https://opencpn.org/>OpenCPN</a>, the "Concise and robust
+          Chart Plotter Navigation software".<br>
+          Specifically it generates harmonic files to provide OpenCPN with the
+          necessary tidal constituents to predict tidal height information at
+          specific tidal stations around the world.<br>
+          If you don't know about OpenCPN, this page won't be of much use to
+          you. I recommend you look at the
+          <a href=https://opencpn.org/>OpenCPN</a> website instead.
         </p>
-        <hr class="my-4">
-        <p class="lead">The <a herf="https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:manual_advanced:techniques:tid">official documentation</a> is fairly terse on the matter of the harmonics files but there is more detail in various forums online. I believe OpenCPN used to ship with the required tidal constituents for much of the globe but due to the copyright holders in various geographic regions rescinding permissions for the previously freely available data sets, the software maintainers were forced to remove it from the downloads.</p>
-        <p class="lead">This project instead uses the <a href="https://www.seanoe.org/data/00980/109129/">TICON-4</a> data set that is available under a Creative Commons licence.</p>
-        <hr class="my-4">
-        <p class="lead">
-        The <a href="https://www.seanoe.org/data/00980/109129/">TICON-4</a> authors:
-        </p><p>
-        </p><p>
-        Hart-Davis Michael, Dettmering Denise, Seitz Florian (2025). TICON-4: TIdal CONstants based on GESLA-4 sea-level records. SEANOE.<br>
-        <a href="https://doi.org/10.17882/109129">https://doi.org/10.17882/109129</a>
+        <hr class=my-4>
+        <p class=lead>
+          The
+          <a herf="https://opencpn.org/wiki/dokuwiki/doku.php?id=opencpn:manual_advanced:techniques:tid">official documentation</a>
+          is fairly terse on the matter of the harmonics files but there is more
+          detail in various forums online. I believe OpenCPN used to ship with
+          the required tidal constituents for much of the globe but due to the
+          copyright holders in various geographic regions rescinding permissions
+          for the previously freely available data sets, the software
+          maintainers were forced to remove it from the downloads.
+        </p>
+        <p class=lead>
+          This project instead uses the
+          <a href=https://www.seanoe.org/data/00980/109129/>TICON-4</a> data
+          set that is available under a Creative Commons licence.
+        </p>
+        <hr class=my-4>
+        <p class=lead>
+          The
+          <a href=https://www.seanoe.org/data/00980/109129/>TICON-4</a>
+          authors:
+        </p>
+
+        <p>
+        <p>
+          Hart-Davis Michael, Dettmering Denise, Seitz Florian (2025). TICON-4:
+          TIdal CONstants based on GESLA-4 sea-level records. SEANOE.<br>
+          <a href=https://doi.org/10.17882/109129>https://doi.org/10.17882/109129</a>
         </p>
         <p>
-        Piccioni Gaia, Dettmering Denise, Bosch Wolfgang, Seitz Florian (2019). TICON: TIdal CONstants based on GESLA sea-level records from globally located tide gauges. Geoscience Data Journal. 6 (2). 97-104.<br>
-        <a href="https://doi.org/10.1002/gdj3.72">https://doi.org/10.1002/gdj3.72,</a><br>
-        <a href="https://archimer.ifremer.fr/doc/00838/94993/">https://archimer.ifremer.fr/doc/00838/94993/</a>
+          Piccioni Gaia, Dettmering Denise, Bosch Wolfgang, Seitz Florian
+          (2019). TICON: TIdal CONstants based on GESLA sea-level records from
+          globally located tide gauges. Geoscience Data Journal. 6 (2).
+          97-104.<br>
+          <a href=https://doi.org/10.1002/gdj3.72>https://doi.org/10.1002/gdj3.72,</a><br>
+          <a href=https://archimer.ifremer.fr/doc/00838/94993/>https://archimer.ifremer.fr/doc/00838/94993/</a>
         </p>
 
-        <hr class="my-4">
-        <a class="btn btn-primary btn-lg" href="#page-config" role="button">Continue</a>
+        <hr class=my-4>
+        <a class="btn btn-lg btn-primary" href=#page-config role=button>Continue</a>
       </div>
     </div>
 
-    <div id="page-config" class="d-none">
-      <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item active"><a href="#page-info">Info</a></li>
-          <li class="breadcrumb-item hidden" aria-current="page">Configuration</li>
-          <li class="breadcrumb-item active"><a href="#page-summary">Summary</a></li>
-          <li class="breadcrumb-item active d-none" id="page-info-download-crumb-2"><a href="#page-download">Download</a></li>
+    <div id=page-config class=d-none>
+      <nav aria-label=breadcrumb>
+        <ol class=breadcrumb>
+          <li class="active breadcrumb-item"><a href=#page-info>Info</a></li>
+          <li class="breadcrumb-item hidden" aria-current=page>
+            Configuration
+          </li>
+          <li class="active breadcrumb-item">
+            <a href=#page-summary>Summary</a>
+          </li>
+          <li class="active breadcrumb-item d-none" id=page-info-download-crumb-2>
+            <a href=#page-download>Download</a>
+          </li>
         </ol>
       </nav>
-      <div class="container">
-        <div class="row justify-content-lg-center">
-          <div class="col-lg-12">
-            <div class="card">
-              <div class="card-body">
+      <div class=container>
+        <div class="justify-content-lg-center row">
+          <div class=col-lg-12>
+            <div class=card>
+              <div class=card-body>
                 Configuration settings for generating your Harmonics files.<br>
-                When you have finished selecting, click ahead to the <a href="#page-summary" class="badge badge-primary">Summary</a> section.
+                When you have finished selecting, click ahead to the
+                <a href=#page-summary class="badge badge-primary">Summary</a>
+                section.
               </div>
             </div>
           </div>
         </div>
-        <div class="row justify-content-lg-center">
-          <div class="col-lg-6">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">Timezones</h5>
+        <div class="justify-content-lg-center row">
+          <div class=col-lg-6>
+            <div class=card>
+              <div class=card-body>
+                <h5 class=card-title>Timezones</h5>
                 <h6 class="card-subtitle mb-2 text-muted">
-                  Select whether you want times in your tide tables to default to the local timezones for each country
-                  or all be set to a single timezone.
+                  Select whether you want times in your tide tables to default
+                  to the local timezones for each country or all be set to a
+                  single timezone.
                 </h6>
-                <div class="card-text">
-                  <fieldset class="form-group" id="time-strategy">
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" id="time-strategy-local" name="time-strategy" value="local" checked="">
-                      <label class="form-check-label" for="time-strategy-local">
-                        Set each of tidal station to their countries timezone.<br>
-                        <b>Note:</b> This option will only work for countries with a single timezone.
+                <div class=card-text>
+                  <fieldset class=form-group id=time-strategy>
+                    <div class=form-check>
+                      <input class=form-check-input type=radio id=time-strategy-local name=time-strategy value=local checked>
+                      <label class=form-check-label for=time-strategy-local>
+                        Set each of tidal station to their countries
+                        timezone.<br>
+                        <b>Note:</b> This option will only work for countries
+                        with a single timezone.
                       </label>
                     </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" id="time-strategy-global" name="time-strategy" value="global">
-                      <label class="form-check-label" for="time-strategy-global">Set all tidal stations to a single timezone.</label>
+                    <div class=form-check>
+                      <input class=form-check-input type=radio id=time-strategy-global name=time-strategy value=global>
+                      <label class=form-check-label for=time-strategy-global>Set all tidal stations to a single timezone.</label>
                     </div>
                   </fieldset>
                 </div>
-                <select id="timezone" name="timezone" disabled="">
-                  <option value="-12:00">UTC -12:00</option>
-                  <option value="-11:00">UTC -11:00</option>
-                  <option value="-9:30">UTC -9:30</option>
-                  <option value="-9:00">UTC -9:00</option>
-                  <option value="-8:00">UTC -8:00</option>
-                  <option value="-7:00">UTC -7:00</option>
-                  <option value="-6:00">UTC -6:00</option>
-                  <option value="-5:00">UTC -5:00</option>
-                  <option value="-4:00">UTC -4:00</option>
-                  <option value="-3:30">UTC -3:30</option>
-                  <option value="-3:00">UTC -3:00</option>
-                  <option value="-2:00">UTC -2:00</option>
-                  <option value="-1:00">UTC -1:00</option>
-                  <option value="0:00" selected="">UTC +0:00</option>
-                  <option value="1:00">UTC +1:00</option>
-                  <option value="2:00">UTC +2:00</option>
-                  <option value="3:00">UTC +3:00</option>
-                  <option value="3:30">UTC +3:30</option>
-                  <option value="4:00">UTC +4:00</option>
-                  <option value="4:30">UTC +4:30</option>
-                  <option value="5:00">UTC +5:00</option>
-                  <option value="5:30">UTC +5:30</option>
-                  <option value="5:45">UTC +5:45</option>
-                  <option value="6:00">UTC +6:00</option>
-                  <option value="6:30">UTC +6:30</option>
-                  <option value="7:00">UTC +7:00</option>
-                  <option value="8:00">UTC +8:00</option>
-                  <option value="8:45">UTC +8:45</option>
-                  <option value="9:00">UTC +9:00</option>
-                  <option value="9:30">UTC +9:30</option>
-                  <option value="10:00">UTC +10:00</option>
-                  <option value="10:30">UTC +10:30</option>
-                  <option value="11:00">UTC +11:00</option>
-                  <option value="12:00">UTC +12:00</option>
-                  <option value="12:45">UTC +12:45</option>
-                  <option value="13:00">UTC +14:00</option>
-                  <option value="14:00">UTC +14:00</option>
+                <select id=timezone name=timezone disabled>
+                  <option value=-12:00>UTC -12:00</option>
+                  <option value=-11:00>UTC -11:00</option>
+                  <option value=-9:30>UTC -9:30</option>
+                  <option value=-9:00>UTC -9:00</option>
+                  <option value=-8:00>UTC -8:00</option>
+                  <option value=-7:00>UTC -7:00</option>
+                  <option value=-6:00>UTC -6:00</option>
+                  <option value=-5:00>UTC -5:00</option>
+                  <option value=-4:00>UTC -4:00</option>
+                  <option value=-3:30>UTC -3:30</option>
+                  <option value=-3:00>UTC -3:00</option>
+                  <option value=-2:00>UTC -2:00</option>
+                  <option value=-1:00>UTC -1:00</option>
+                  <option value=0:00 selected>UTC +0:00</option>
+                  <option value=1:00>UTC +1:00</option>
+                  <option value=2:00>UTC +2:00</option>
+                  <option value=3:00>UTC +3:00</option>
+                  <option value=3:30>UTC +3:30</option>
+                  <option value=4:00>UTC +4:00</option>
+                  <option value=4:30>UTC +4:30</option>
+                  <option value=5:00>UTC +5:00</option>
+                  <option value=5:30>UTC +5:30</option>
+                  <option value=5:45>UTC +5:45</option>
+                  <option value=6:00>UTC +6:00</option>
+                  <option value=6:30>UTC +6:30</option>
+                  <option value=7:00>UTC +7:00</option>
+                  <option value=8:00>UTC +8:00</option>
+                  <option value=8:45>UTC +8:45</option>
+                  <option value=9:00>UTC +9:00</option>
+                  <option value=9:30>UTC +9:30</option>
+                  <option value=10:00>UTC +10:00</option>
+                  <option value=10:30>UTC +10:30</option>
+                  <option value=11:00>UTC +11:00</option>
+                  <option value=12:00>UTC +12:00</option>
+                  <option value=12:45>UTC +12:45</option>
+                  <option value=13:00>UTC +14:00</option>
+                  <option value=14:00>UTC +14:00</option>
                 </select>
               </div>
             </div>
           </div>
-          <div class="col-lg-6">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">Select Countries</h5>
+          <div class=col-lg-6>
+            <div class=card>
+              <div class=card-body>
+                <h5 class=card-title>Select Countries</h5>
                 <h6 class="card-subtitle mb-2 text-muted">
-                  Select the Regions, Sub-Regions or Countries you with to generate Harmonics files for.<br>
-                  Clicking on a Region or Sub-Region will automatically select/deselect all Countries within that Region or Sub-Region.<br>
-                  Clicking on an individual Country will select/deselect that Country.<br>
+                  Select the Regions, Sub-Regions or Countries you with to
+                  generate Harmonics files for.<br>
+                  Clicking on a Region or Sub-Region will automatically
+                  select/deselect all Countries within that Region or
+                  Sub-Region.<br>
+                  Clicking on an individual Country will select/deselect that
+                  Country.<br>
                 </h6>
               </div>
-              <div id="regions" class="">Loading data...</div>
+              <div id=regions>Loading data...</div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div id="page-summary" class="d-none">
-      <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item active"><a href="#page-info">Info</a></li>
-          <li class="breadcrumb-item active"><a href="#page-config">Configuration</a></li>
-          <li class="breadcrumb-item hidden" aria-current="page">Summary</li>
-          <li class="breadcrumb-item active"><a href="#page-download">Download</a></li>
+    <div id=page-summary class=d-none>
+      <nav aria-label=breadcrumb>
+        <ol class=breadcrumb>
+          <li class="active breadcrumb-item"><a href=#page-info>Info</a></li>
+          <li class="active breadcrumb-item">
+            <a href=#page-config>Configuration</a>
+          </li>
+          <li class="breadcrumb-item hidden" aria-current=page>Summary</li>
+          <li class="active breadcrumb-item">
+            <a href=#page-download>Download</a>
+          </li>
         </ol>
       </nav>
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Summary</h5>
+      <div class=card>
+        <div class=card-body>
+          <h5 class=card-title>Summary</h5>
           <h6 class="card-subtitle mb-2 text-muted">
             Look over the selected countries below.<br>
-            If changes are required, click back to the <a href="#page-summary" class="badge badge-primary">Summary</a> section and make changes.<br>
-            If all looks good, proceed to <a href="#page-download" class="badge badge-primary">Downloads</a>.
+            If changes are required, click back to the
+            <a href=#page-config class="badge badge-primary">Configuration</a>
+            section and make changes.<br>
+            If all looks good, proceed to
+            <a href=#page-download class="badge badge-primary">Downloads</a>.
           </h6>
         </div>
       </div>
-      <div id="report">
-      </div>
+      <div id=report></div>
     </div>
 
-    <div id="page-download" class="d-none">
-      <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item active"><a href="#page-info">Info</a></li>
-          <li class="breadcrumb-item active"><a href="#page-config">Configuration</a></li>
-          <li class="breadcrumb-item active"><a href="#page-summary">Summary</a></li>
-          <li class="breadcrumb-item hidden" aria-current="page">Download</li>
+    <div id=page-download class=d-none>
+      <nav aria-label=breadcrumb>
+        <ol class=breadcrumb>
+          <li class="active breadcrumb-item"><a href=#page-info>Info</a></li>
+          <li class="active breadcrumb-item">
+            <a href=#page-config>Configuration</a>
+          </li>
+          <li class="active breadcrumb-item">
+            <a href=#page-summary>Summary</a>
+          </li>
+          <li class="breadcrumb-item hidden" aria-current=page>Download</li>
         </ol>
       </nav>
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Downloads</h5>
+      <div class=card>
+        <div class=card-body>
+          <h5 class=card-title>Downloads</h5>
         </div>
       </div>
     </div>
 
-    <div id="app"></div>
-    <script type="module" src="/OpenCPN_harmonics_chooser.34df32e0.js"></script>
+    <div id=app></div>
+    <script type=module src=/OpenCPN_harmonics_chooser.68ae4553.js></script>
   
 
-</body></html>

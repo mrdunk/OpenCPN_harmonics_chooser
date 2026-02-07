@@ -1,25 +1,22 @@
-
 export function pull_data(url: string, consume_raw_data_callback) {
   return fetch(url, {
-    method: 'get',
+    method: "get",
     headers: {
-      'content-type': 'text/csv;charset=UTF-8',
+      "content-type": "text/csv;charset=UTF-8",
+    },
+  }).then((response) => {
+    if (!response.ok) {
+      throw new Error(`HTTP error: ${response.status}`);
     }
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status}`);
-      }
-      return response.text();
-    })
-    //.then((csv) => {
-    //  //console.log("ok: " + csv);
-    //  consume_raw_data_callback(csv);
-    //})
-    //.catch((error) => {
-    //  console.log(`Could not fetch raw data: ${error}`);
-    //})
-  ;
+    return response.text();
+  });
+  //.then((csv) => {
+  //  //console.log("ok: " + csv);
+  //  consume_raw_data_callback(csv);
+  //})
+  //.catch((error) => {
+  //  console.log(`Could not fetch raw data: ${error}`);
+  //})
 }
 
 function click_checkbox(event) {
@@ -31,14 +28,14 @@ function click_checkbox(event) {
         break;
       }
     }
-    checkbox.checked = ! checkbox.checked;
+    checkbox.checked = !checkbox.checked;
   }
 
   const form_div = document.querySelector("div#regions");
   const all_checkboxes = form_div.querySelectorAll("input");
   const address = checkbox.value;
   var children = [];
-  for(const candidate of all_checkboxes) {
+  for (const candidate of all_checkboxes) {
     if (candidate.value.startsWith(address) && candidate.value !== address) {
       children.push(candidate);
     }
@@ -57,7 +54,7 @@ function form_element(name: string, indent: int, address: string) {
   row.classList.add("border");
 
   // Handle row highlighting.
-  if(globalThis.index % 2) {
+  if (globalThis.index % 2) {
     row.classList.add("bg-light");
   }
   row.addEventListener("mouseenter", (event) => {
@@ -66,13 +63,13 @@ function form_element(name: string, indent: int, address: string) {
   });
   row.addEventListener("mouseleave", (event) => {
     row.classList.remove("bg-secondary");
-    const row_id = Number(row.id.split("-")[1])
-    if (row_id % 2){
+    const row_id = Number(row.id.split("-")[1]);
+    if (row_id % 2) {
       row.classList.add("bg-light");
     }
   });
 
-  if(indent > 0) {
+  if (indent > 0) {
     const spacer = document.createElement("div");
     spacer.classList.add(`col-${indent}`);
     row.appendChild(spacer);
@@ -81,11 +78,11 @@ function form_element(name: string, indent: int, address: string) {
   const label = document.createElement("div");
   label.textContent = name;
   label.classList.add(`col-${11 - indent}`);
-  label.classList.add('display-5');
+  label.classList.add("display-5");
   row.appendChild(label);
 
-  const checkbox = document.createElement('input');
-  checkbox.type = 'checkbox';
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
   //checkbox.id = ...
   checkbox.value = address;
   checkbox.classList.add("col-1");
@@ -99,7 +96,7 @@ function form_element(name: string, indent: int, address: string) {
   return row;
 }
 
-export function display_countries(countries_details){
+export function display_countries(country_details) {
   const form_div = document.querySelector("div#regions");
   if (!form_div) {
     console.error("Could not find DIV.");
@@ -110,13 +107,13 @@ export function display_countries(countries_details){
 
   form_div.innerHTML = "";
 
-  const countries_keys = Array.from(countries_details.keys()).sort();
+  const countries_keys = Array.from(country_details.keys()).sort();
   for (const region_label of countries_keys) {
     //console.log(`${region_label}`);
     const region_address = region_label;
     form_div.appendChild(form_element(region_label, 0, region_address));
 
-    const region_map = countries_details.get(region_label);
+    const region_map = country_details.get(region_label);
 
     const region_keys = Array.from(region_map.keys()).sort();
     for (const subregion_label of region_keys) {
@@ -135,4 +132,3 @@ export function display_countries(countries_details){
     }
   }
 }
-
