@@ -1,5 +1,14 @@
 import $ from "jquery";
-import {CountryDetails, CountriesFlat, RegionsNested, SubRegionsNested, CountriesNested, CountryNested} from "./types";
+import {
+  CountryDetails,
+  CountriesFlat,
+  RegionsNested,
+  SubRegionsNested,
+  CountriesNested,
+  CountryNested,
+} from "./types";
+
+export const no_timezone = "Not available";
 
 export function get_selected_countries(): [RegionsNested, CountriesFlat] {
   const children = $("div#regions").children("div").children("input");
@@ -7,9 +16,9 @@ export function get_selected_countries(): [RegionsNested, CountriesFlat] {
   const regions_nested: RegionsNested = new Map();
   for (const child of children) {
     const components = child.value.split("|");
-    var region = null;
-    var sub_region = null;
-    var country = null;
+    let region = null;
+    let sub_region = null;
+    let country = null;
     switch (components.length) {
       case 1:
         //[region,] = components;
@@ -20,20 +29,20 @@ export function get_selected_countries(): [RegionsNested, CountriesFlat] {
       case 3:
         [region, sub_region, country] = components;
 
-        var regions_stats = regions_nested.get(region);
-        if(! regions_stats) {
+        let regions_stats = regions_nested.get(region);
+        if (!regions_stats) {
           regions_stats = {
             sub_regions: new Map<string, CountriesNested>(),
             countries_selected: 0,
-            countries_existing: 0
+            countries_existing: 0,
           };
           regions_nested.set(region, regions_stats);
         }
         regions_stats.countries_selected += child.checked;
         regions_stats.countries_existing += 1;
 
-        var subregions_stats = regions_stats.sub_regions.get(sub_region);
-        if(! subregions_stats) {
+        let subregions_stats = regions_stats.sub_regions.get(sub_region);
+        if (!subregions_stats) {
           subregions_stats = {
             countries: new Set<CountryNested>(),
             countries_selected: 0,
@@ -107,12 +116,12 @@ function display_row(
   row.appendChild(timezone_div);
 }
 
-function country_to_timezone(
+export function country_to_timezone(
   region: string,
   sub_region: string,
   country: string,
   country_details: CountryDetails,
-) : [string] {
+): [string] {
   if (
     $("input#time-strategy-global").is(":checked") &&
     $("input#time-strategy-global").val() == "global"
@@ -122,28 +131,32 @@ function country_to_timezone(
   }
 
   // Attempt to use local time for stations.
-  const list: [string] = [""];
-  
   const regions = country_details.get(region);
   if (!regions) {
     console.error(`Missing region in country_details: ${region}`);
-    return [""]
+    return [""];
   }
 
   const sub_regions = regions.get(sub_region);
   if (!sub_regions) {
     console.error(`Missing sub_region in country_details: ${sub_region}`);
-    return [""]
+    return [""];
   }
 
   const countries = sub_regions.get(country);
   if (!countries) {
     console.error(`Missing country in country_details: ${country}`);
-    return [""]
+    return [""];
   }
 
+  if (!countries.timezone || countries.timezone.length === 0) {
+    console.warn(`No timezone data for ${country}`);
+    return [no_timezone];
+  }
+
+  const list: [string] = [""];
   for (const t of countries.timezone) {
-    if(list[0] === "") {
+    if (list[0] === "") {
       list.pop();
     }
     list.push(t.utcOffsetStr);

@@ -1,14 +1,33 @@
-import { get_selected_countries } from "./summary";
-import { CountryDetails } from "./parse_data";
+import {
+  get_selected_countries,
+  no_timezone,
+  country_to_timezone,
+} from "./summary";
+import { CountryDetails, CountriesFlat } from "./types";
+import { constituent_names, harmonics_header } from "./harmonics_header";
+
+function uplad_file(filename: string, content: string) {
+  console.log(filename);
+
+  const link = document.createElement("a");
+  const file = new Blob([content], { type: "text/plain" });
+  link.href = URL.createObjectURL(file);
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
 
 const cardinal_translations = [
   ["NORTH", "N"],
   ["SOUTH", "S"],
   ["EAST", "E"],
-  ["WEST", "W"]
+  ["WEST", "W"],
 ];
 
-function region_codes(country_details: CountryDetails, countries_flat: CountriesFlat) {
+function translate_regions(
+  country_details: CountryDetails,
+  countries_flat: CountriesFlat,
+) {
   const region_full_to_idx = new Map<string, string>();
   const region_idx_to_full = new Map<string, string>();
   const sub_region_full_to_idx = new Map<string, string>();
@@ -17,67 +36,307 @@ function region_codes(country_details: CountryDetails, countries_flat: Countries
   const country_cca3_to_idx = new Map<string, string>();
   const country_idx_to_cca3 = new Map<string, string>();
 
-  for(const [region_name, children] of country_details) {
+  for (const [region_name, children] of country_details) {
     // Regions.
     const region_label = region_name.toUpperCase().substring(0, 2);
     region_full_to_idx.set(region_name, region_label);
     region_idx_to_full.set(region_label, region_name);
 
-    for(const [sub_region_name, sub_children] of children) {
+    for (const [sub_region_name, sub_children] of children) {
       // Sub Regions
-      var sub_region_label = "";
-      for(const [cardinal, label_section] of cardinal_translations) {
-        if(sub_region_name.toUpperCase().includes(cardinal)) {
+      let sub_region_label = "";
+      for (const [cardinal, label_section] of cardinal_translations) {
+        if (sub_region_name.toUpperCase().includes(cardinal)) {
           sub_region_label += label_section;
         }
       }
-      if(sub_region_label.length === 0) {
+      if (sub_region_label.length === 0) {
         // No cardinal elements to sub-region name so just use first 2 chars of name.
         sub_region_label = sub_region_name.toLowerCase().substring(0, 2);
       }
       sub_region_full_to_idx.set(
-        sub_region_name, region_label + sub_region_label);
+        sub_region_name,
+        region_label + sub_region_label,
+      );
       sub_region_idx_to_full.set(
-        region_label + sub_region_label, `${region_name}, ${sub_region_name}`);
+        region_label + sub_region_label,
+        `${region_name}, ${sub_region_name}`,
+      );
 
-      for(const [country_name, data] of sub_children) {
+      for (const [country_name, data] of sub_children) {
         // Countries
         const full_name = `${region_name}|${sub_region_name}|${country_name}`;
-        if(! countries_flat.has(full_name)) {
-          console.log(`Skipping: ${full_name}`);
+        if (!countries_flat.has(full_name)) {
           continue;
         }
         const country_data = data.country;
         const cca3 = country_data.cca3;
-        const idx_name = `${region_label + sub_region_label}:${cca3}::`
+        const idx_name = `${region_label + sub_region_label}:${cca3}::`;
 
-        country_cca3_to_full.set(cca3, full_name);
+        country_cca3_to_full.set(cca3, country_name);
         country_cca3_to_idx.set(cca3, idx_name);
         country_idx_to_cca3.set(full_name, cca3);
       }
     }
   }
 
-  return [
-    region_full_to_idx, region_idx_to_full,
-    sub_region_full_to_idx, sub_region_idx_to_full,
-    country_cca3_to_idx, country_cca3_to_idx, country_idx_to_cca3
-  ];
+  return {
+    region_full_to_idx: region_full_to_idx,
+    region_idx_to_full: region_idx_to_full,
+    sub_region_full_to_idx: sub_region_full_to_idx,
+    sub_region_idx_to_full: sub_region_idx_to_full,
+    country_cca3_to_full: country_cca3_to_full,
+    country_cca3_to_idx: country_cca3_to_idx,
+    country_idx_to_cca3: country_idx_to_cca3,
+  };
 }
 
 function download_harmonic(
-  country_details: CountryDetails, countries_flat: CountriesFlat) {
+  country_details: CountryDetails,
+  selected_countries: CountriesFlat,
+  stations: TidalStations,
+  translate,
+) {
+  console.log(constituent_names.length);
+
+  let lines: [string] = [];
+  lines.push(harmonics_header);
+
+  for (const [region_name, children] of country_details) {
+    // Regions.
+    for (const [sub_region_name, sub_children] of children) {
+      // Sub Regions
+      for (const [country_name, data] of sub_children) {
+        // Countries
+        const country_index = `${region_name}|${sub_region_name}|${country_name}`;
+        if (!selected_countries.has(country_index)) {
+          continue;
+        }
+
+        const country_comment = `\n# ${region_name}  |  ${sub_region_name} | ${country_name}`;
+
+        const country_data = data.country;
+        const cca3 = country_data.cca3;
+        const idx_label = translate.country_cca3_to_idx.get(cca3);
+
+        const timezone = format_timezone(
+          region_name,
+          sub_region_name,
+          country_name,
+          country_details,
+        );
+        const region_names = [region_name, sub_region_name, country_name];
+        const new_lines = get_station_harmonic(
+          cca3,
+          region_names,
+          idx_label,
+          timezone,
+          stations,
+        );
+        lines = lines.concat(new_lines);
+      }
+    }
+  }
+
+  uplad_file("HARMONICS", lines.join("\n"));
+}
+
+function get_station_harmonic(
+  country: string,
+  region_names: [string],
+  idx_label: string,
+  timezone: string,
+  stations: TidalStations,
+): [string] {
+  //console.log(country, idx_label, timezone);
+  //console.log(stations.get(country));
+
+  const country_stations = stations.get(country);
+  const lines = [];
+  lines.push("#");
+  lines.push(`# ${idx_label}    ${region_names[2]} , ${region_names[1]}`);
+  lines.push("#");
+  lines.push("#");
+
+  for (const [station_name, station] of country_stations) {
+    lines.push(`# lon: ${station.get("lon")}   lat: ${station.get("lat")}`);
+    lines.push(`# datum_information: ${station.get("datum_information")}`);
+    lines.push(`${station_name}, ${region_names[2]}, ${region_names[1]}`);
+    lines.push(`${timezone} :test/timezone`);
+    lines.push("0.0 meters");
+    for (const constituent_name of constituent_names) {
+      const constituents = station.get("constituents");
+      const constituent = constituents.get(constituent_name);
+      if (constituent) {
+        const amp = constituent.amp;
+        const pha = constituent.pha;
+        lines.push(`${constituent_name}  ${amp}  ${pha}`);
+      } else {
+        lines.push(`${constituent_name}  0  0`);
+      }
+    }
+    lines.push("#");
+  }
+
+  return lines;
+}
+
+function format_timezone(
+  region_name: string,
+  sub_region_name: string,
+  country_name: string,
+  country_details,
+) {
+  let timezone = country_to_timezone(
+    region_name,
+    sub_region_name,
+    country_name,
+    country_details,
+  )[0];
+  if (timezone === no_timezone) {
+    timezone = "0:00";
+  }
+  // Remove any "+0" part of the timezone string.
+  // 0:00 is ok.
+  // 3:00 is ok.
+  // -3:00 is ok
+  // +03:00 is not.
+  // -03:00 is not.
+  if (timezone.charAt(0) === "+") {
+    timezone = timezone.substring(1);
+  }
+  if (timezone.charAt(0) === "0" && timezone.charAt(1) !== ":") {
+    timezone = timezone.substring(1);
+  }
+  if (
+    timezone.charAt(0) === "-" &&
+    timezone.charAt(1) === "0" &&
+    timezone.charAt(2) !== ":"
+  ) {
+    timezone = "-" + timezone.substring(2);
+  }
+  return timezone;
+}
+
+function get_station_idxs(
+  country: string,
+  idx_label: string,
+  stations: TidalStations,
+  timezone: string,
+): [string] {
+  const lines: [string] = [];
+  for (const [stations_name, station] of stations.get(country)) {
+    const lat = station.get("lat");
+    const lon = station.get("lon");
+    let line = `T${idx_label} ${lon} ${lat} ${timezone} ${stations_name}`;
+    lines.push(line);
+  }
+
+  return lines;
 }
 
 function download_harmonic_idx(
-  country_details: CountryDetails, countries_flat: CountriesFlat) {
-    console.log(region_codes(country_details, countries_flat));
+  country_details: CountryDetails,
+  selected_countries: CountriesFlat,
+  stations: TidalStations,
+  translate,
+) {
+  let lines: [string] = [];
+  const header = `# Note: This file is automatically generated by "OpenCPN harmonic file generator"
+# https://github.com/mrdunk/OpenCPN_harmonics_chooser
+# using the TICON-4 dataset. https://www.seanoe.org/data/00980/109129/
+
+# Basic line formats:
+# Reference stations: T|C Reg:Co:St Lon Lat TimeZone Name
+# Info lines:         I Reg:Co:St 0 0 0:0 (blank) Information
+# Subordinate sta'ns: t|c Reg:Co:St Lon Lat TimeZone Name
+# Subordinate extra:  &Hmin Hmpy Hoff Lmin Lmpy Loff StaID RefFileNum RefName
+
+`;
+  let header_abbreviations =
+    "# Region and Country abbreviations used later in the Station entries.\n";
+  header_abbreviations += "";
+  header_abbreviations += "XREF  # Needed for correct funtionality.";
+
+  let help_stations =
+    '# The format of the tidal measuring stations is: "ID Lon Lat TimeZone Name".\n';
+  help_stations +=
+    '# The station ID starts with "T", followed by the Region:Country:State:\n';
+  help_stations +=
+    '# The "State" part is not used by the harmonic file generator due to it\'s focus';
+  help_stations +=
+    " on non US regions. It may be useful for differnt input data sets however.";
+  const footer = "*END*  # Needed for correct funtionality.";
+
+  lines.push(header);
+  lines.push(header_abbreviations);
+
+  for (const [idx, full_name] of [
+    ...translate.sub_region_idx_to_full.entries(),
+  ].sort()) {
+    lines.push(`REGION ${idx} ${full_name}`);
+  }
+
+  lines.push("");
+
+  for (const [idx, full] of [
+    ...translate.country_cca3_to_full.entries(),
+  ].sort()) {
+    lines.push(`COUNTRY ${idx} ${full}`);
+  }
+
+  lines.push(footer);
+  lines.push("");
+  lines.push(help_stations);
+
+  for (const [region_name, children] of country_details) {
+    // Regions.
+    for (const [sub_region_name, sub_children] of children) {
+      // Sub Regions
+      for (const [country_name, data] of sub_children) {
+        // Countries
+        const country_index = `${region_name}|${sub_region_name}|${country_name}`;
+        if (!selected_countries.has(country_index)) {
+          continue;
+        }
+
+        const country_comment = `\n# ${region_name}  |  ${sub_region_name} | ${country_name}`;
+
+        const country_data = data.country;
+        const cca3 = country_data.cca3;
+        const idx_label = translate.country_cca3_to_idx.get(cca3);
+
+        const timezone = format_timezone(
+          region_name,
+          sub_region_name,
+          country_name,
+          country_details,
+        );
+
+        const new_lines = get_station_idxs(cca3, idx_label, stations, timezone);
+        lines = lines.concat(new_lines);
+      }
+    }
+  }
+
+  //uplad_file("HARMONICS.idx", lines.join("\n"));
 }
 
-export function download(country_details: CountryDetails) {
-  // TODO: cache get_selected_countries data so we don't need to recalculate?
-  const [regions_nested, countries_flat] = get_selected_countries();
+export function download(
+  country_details: CountryDetails,
+  stations: TidalStations,
+) {
+  // Need to re-calculate since the selected countries might have changed.
+  const [selected_regions_nested, selected_countries] =
+    get_selected_countries();
 
-  download_harmonic(country_details, countries_flat);
-  download_harmonic_idx(country_details, countries_flat);
+  const translate = translate_regions(country_details, selected_countries);
+
+  download_harmonic(country_details, selected_countries, stations, translate);
+  download_harmonic_idx(
+    country_details,
+    selected_countries,
+    stations,
+    translate,
+  );
 }

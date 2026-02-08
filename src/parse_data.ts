@@ -1,11 +1,10 @@
 import Papa from "papaparse";
 import world_countries from "world-countries";
 import countries_and_timezones from "countries-and-timezones";
-import {CountryDetails, TidalStations} from "./types";
-
+import { CountryDetails, TidalStations } from "./types";
 
 // Turn csv data into a JS list of harmonic constituents.
-function parse_data(csv: string): {}{
+function parse_data(csv: string): {} {
   const harmonics_data = Papa.parse(csv, {
     header: true,
     skipEmptyLines: true,
@@ -66,8 +65,8 @@ function update_station(data_line, existing_station) {
 // of stations for that country.
 // Next level is indexed by the data set's tide_gauge_name property.
 function consolidte_stations(parsed: {}): TidalStations {
-  var by_country = new Map();
-  var error_count = 0;
+  let by_country = new Map();
+  let error_count = 0;
   for (const data_line of parsed.data) {
     if ((!"country") in data_line) {
       error_count += 1;
@@ -93,12 +92,14 @@ function consolidte_stations(parsed: {}): TidalStations {
   return by_country;
 }
 
-function country_code_lookup(countries: Set<string>): CountryDetails {
+function country_code_lookup(
+  countries_with_stations: Set<string>,
+): CountryDetails {
   const regions: CountryDetails = new Map();
 
   for (const country_data of world_countries) {
     const country_code = country_data.cca3;
-    if ((!country_code) in countries) {
+    if (!countries_with_stations.has(country_code)) {
       // Not a country includes in our tidal data set.
       continue;
     }
@@ -121,7 +122,7 @@ function country_code_lookup(countries: Set<string>): CountryDetails {
       country_data.cca2,
     );
 
-    if(subregion) {
+    if (subregion) {
       subregion.set(common_name, { country: country_data, timezone: timezone });
     } else {
       console.error(`Missing subregion: ${subregion_label}`);
@@ -131,16 +132,44 @@ function country_code_lookup(countries: Set<string>): CountryDetails {
   return regions;
 }
 
-export function consume_raw_station_data(csv: string): TidalStations {
+/* Pull raw data from .csv file. */
+function pull_data(url: string, consume_raw_data_callback) {
+  return fetch(url, {
+    method: "get",
+    headers: {
+      "content-type": "text/csv;charset=UTF-8",
+    },
+  }).then((response) => {
+    if (!response.ok) {
+      throw new Error(`HTTP error: ${response.status}`);
+    }
+    return response.text();
+  });
+  //.then((csv) => {
+  //  //console.log("ok: " + csv);
+  //  consume_raw_data_callback(csv);
+  //})
+  //.catch((error) => {
+  //  console.log(`Could not fetch raw data: ${error}`);
+  //})
+}
+
+/* Pull raw .csv file and turn it into a TidalStations object. */
+export async function consume_raw_station_data(
+  raw_data_url: string,
+): TidalStations {
+  const csv = await pull_data(raw_data_url);
   const parsed = parse_data(csv);
   const stations: TidalStations = consolidte_stations(parsed);
 
   return stations;
 }
 
+/* Return an object of non tidal country information
+ * for all countries we have tidal data for.
+ * */
 export function format_countries(stations: TidalStations): CountryDetails {
-  const countries = new Set<string>(stations.keys());
-  const country_details = country_code_lookup(countries);
-  console.log(country_details);
+  const countries_with_stations = new Set<string>(stations.keys());
+  const country_details = country_code_lookup(countries_with_stations);
   return country_details;
 }

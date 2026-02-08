@@ -2,4 +2,5 @@
 dist
 tsconfig.json
 package.json
+./src/.*.swp
 

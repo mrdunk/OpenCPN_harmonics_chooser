@@ -1,26 +1,5 @@
-export function pull_data(url: string, consume_raw_data_callback) {
-  return fetch(url, {
-    method: "get",
-    headers: {
-      "content-type": "text/csv;charset=UTF-8",
-    },
-  }).then((response) => {
-    if (!response.ok) {
-      throw new Error(`HTTP error: ${response.status}`);
-    }
-    return response.text();
-  });
-  //.then((csv) => {
-  //  //console.log("ok: " + csv);
-  //  consume_raw_data_callback(csv);
-  //})
-  //.catch((error) => {
-  //  console.log(`Could not fetch raw data: ${error}`);
-  //})
-}
-
 function click_checkbox(event) {
-  var checkbox = event.target;
+  let checkbox = event.target;
   if (event.target.type !== "checkbox") {
     for (const child of event.target.parentNode.children) {
       if (child.type === "checkbox") {
@@ -34,7 +13,7 @@ function click_checkbox(event) {
   const form_div = document.querySelector("div#regions");
   const all_checkboxes = form_div.querySelectorAll("input");
   const address = checkbox.value;
-  var children = [];
+  let children = [];
   for (const candidate of all_checkboxes) {
     if (candidate.value.startsWith(address) && candidate.value !== address) {
       children.push(candidate);
