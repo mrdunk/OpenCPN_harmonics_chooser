@@ -95,7 +95,6 @@ const APP = {
       console.log(APP.data_version, APP.data_upload.version);
       if (APP.data_version !== APP.data_upload.version) {
         APP.data_version = APP.data_upload.version;
-        //APP.stations.process();
         APP.stations = new ParseStations(APP.data_upload.imported_harmonics);
         APP.country_details = country_attributes(APP.stations.stations);
         display_countries(APP.country_details);

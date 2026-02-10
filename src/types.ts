@@ -27,11 +27,23 @@ export type CountriesFlat = Set<string>;
  * Nested Map keys are the names of the tidal observation stations.
  * Nested Maps contents contain the detail about the tidal observation stations.
  * Can be calculated on startup before any user configuration.
- * Returned by the consolidte_stations() method.
+ * Returned by the consolidate_stations() method.
  */
 export type TidalStations = Map<string, CountriesTidalStation>;
 
-type CountriesTidalStation = Map<string, string | Map<string, string>>;
+export type CountriesTidalStation = Map<string, TidalStation>;
+
+export type TidalStation = Map<string, string | TidalStationConstituents>;
+
+export type TidalStationConstituents = Map<string, TidalStationConstituent>;
+
+export type TidalStationConstituent = {
+  amp: string;
+  amp_std: string;
+  con: string;
+  pha: string;
+  pha_std: string;
+};
 
 /*
  * A summary of which countries have been selected.
@@ -61,6 +73,9 @@ export type CountryNested = {
   selected: boolean;
 };
 
+/* The station constituent objects representing each line immediately after
+ * parsing from the .csv file.
+ */
 export type ParsedStationLine = {
   amp: string;
   amp_std: string;

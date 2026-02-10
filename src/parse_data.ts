@@ -1,18 +1,26 @@
 import Papa from "papaparse";
 import world_countries from "world-countries";
 import countries_and_timezones from "countries-and-timezones";
-import { CountryDetails, TidalStations, ParsedStationLine } from "./types";
+import {
+  CountryDetails,
+  TidalStations,
+  CountriesTidalStation,
+  TidalStation,
+  TidalStationConstituents,
+  TidalStationConstituent,
+  ParsedStationLine,
+} from "./types";
 
 export class ParseStations {
   private csv: string = "";
   private harmonics_data: ParsedStationLine[];
   private raw_data: Map<string, string[]>;
   stations: TidalStations;
-  station_count: number;
+  length: number;
 
   constructor(raw_data: Map<string, string[]>) {
     this.raw_data = raw_data;
-    this.station_count = 0;
+    this.length = 0;
     this.harmonics_data = [];
     this.stations = new Map();
 
@@ -25,9 +33,9 @@ export class ParseStations {
 
     console.log(`Found: ${this.harmonics_data.length} entries in parsed data`);
 
-    const station_count = this.consolidte_stations();
+    const length = this.consolidate_stations();
 
-    console.log(`Consolidated to: ${this.station_count} individual stations;`);
+    console.log(`Consolidated to: ${this.length} individual stations;`);
   }
 
   // Turn csv data into a JS list of harmonic constituents.
@@ -49,7 +57,7 @@ export class ParseStations {
   // Top level Map() uses 3 letter codes for countries, indexing a collection
   // of stations for that country.
   // Next level is indexed by the data set's tide_gauge_name property.
-  private consolidte_stations() {
+  private consolidate_stations() {
     let error_count = 0;
     for (const data_line of this.harmonics_data) {
       if (!("country" in data_line)) {
@@ -60,16 +68,29 @@ export class ParseStations {
 
       //const country = this.stations.getOrInsert(data_line.country, new Map());
       let country = this.stations.get(data_line.country);
-      if(! country) {
+      if (!country) {
         country = new Map();
         this.stations.set(data_line.country, country);
       }
+
       if (!country.has(data_line.tide_gauge_name)) {
-        this.station_count += 1;
+        this.length += 1;
+      }
+      //const station = country.getOrInsert(data_line.tide_gauge_name, new Map());
+      let station = country.get(data_line.tide_gauge_name);
+      if (!station) {
+        station = new Map<string, string | TidalStationConstituents>();
+        country.set(data_line.tide_gauge_name, station);
       }
 
-      const station = country.getOrInsert(data_line.tide_gauge_name, new Map());
-      const constituents = station.getOrInsert("constituents", new Map());
+      //const constituents = station.getOrInsert("constituents", new Map());
+      let constituents = station.get("constituents") as
+        | undefined
+        | TidalStationConstituents;
+      if (!constituents) {
+        constituents = new Map<string, TidalStationConstituent>();
+        station.set("constituents", constituents);
+      }
 
       if (constituents.has(data_line.con)) {
         console.error(
@@ -83,7 +104,9 @@ export class ParseStations {
     }
   }
 
-  private make_constituent(data_line: ParsedStationLine) {
+  private make_constituent(
+    data_line: ParsedStationLine,
+  ): TidalStationConstituent {
     return {
       con: data_line.con,
       amp: data_line.amp,
@@ -95,9 +118,9 @@ export class ParseStations {
 
   private update_station(
     data_line: ParsedStationLine,
-    existing_station: Map<string, string>,
+    existing_station: TidalStation,
   ) {
-    const station_properties = new Set<string>([
+    const station_properties = [
       "lat",
       "lon",
       "missing_obs",
@@ -111,7 +134,7 @@ export class ParseStations {
       "country",
       "record_quality",
       "datum_information",
-    ]);
+    ];
     for (const property of station_properties) {
       if (
         existing_station.has(property) &&

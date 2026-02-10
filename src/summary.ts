@@ -128,11 +128,11 @@ export function country_to_timezone(
   ) {
     // Single timezone for all stations.
     const val = $("select#timezone").val();
-    if(val === undefined) {
-      console.warn("Could not get \"select#timezone\" HRML element.")
+    if (val === undefined) {
+      console.warn('Could not get "select#timezone" HRML element.');
       return ["0:00"];
     }
-    return[val as string];
+    return [val as string];
   }
 
   // Attempt to use local time for stations.
