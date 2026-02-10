@@ -60,3 +60,25 @@ export type CountryNested = {
   country: string;
   selected: boolean;
 };
+
+
+export type ParsedStationLine = {
+  amp: string;
+  amp_std: string;
+  con: string;
+  pha: string;
+  pha_std: string;
+  lat: string;
+  lon: string;
+  missing_obs: string;
+  no_of_obs: string;
+  years_of_obs: string;
+  start_date: string;
+  end_date: string;
+  gesla_source: string;
+  tide_gauge_name: string;
+  type: string;
+  country: string;
+  record_quality: string;
+  datum_information: string;
+};
