@@ -1,18 +1,17 @@
 import { display_countries } from "./config";
-import { consume_raw_station_data, format_countries } from "./parse_data";
+import { ParseStations, country_attributes } from "./parse_data";
 import { generate_summary } from "./summary";
 import { download } from "./download";
+import { DataUpload } from "./file_upload";
 
-const version = "v0.1.0";
+const sw_version = "v0.1.0";
 
 function time_config() {
   $("input#time-strategy-local").click(function (event) {
-    console.log("local:", event);
     console.log($("select#timezone"));
     $("select#timezone").attr("disabled", "disabled");
   });
   $("input#time-strategy-global").click(function (event) {
-    console.log("global:", event);
     $("select#timezone").removeAttr("disabled");
   });
   $("input#time-strategy-global").prop("checked", true);
@@ -21,30 +20,52 @@ function time_config() {
 
 const APP = {
   raw_data_url: "./data/122848.csv",
+  data_version: -1,
 
   async setup() {
     window.location.hash = "";
     $(window).on("hashchange", APP.change_page);
 
-    $("[title='version']").text(version);
-
-    APP.stations = await consume_raw_station_data(APP.raw_data_url);
-    APP.progress_log(`Pulled raw data from ${APP.raw_data_url} ...`);
-
-    APP.country_details = format_countries(APP.stations);
-    APP.progress_log("Formated Regeion and Country data ...");
+    $("[title='sw_version']").text(sw_version);
 
     time_config();
 
-    display_countries(APP.country_details);
-    APP.progress_log("Generated settings page ...");
+    APP.data_upload = new DataUpload(APP.enable_links_config);
 
     window.location.hash = "#page-info";
   },
 
-  progress_log(message) {
-    console.info(message);
-    $(`<p>${message}</p>`).appendTo("div#page-loading");
+  enable_links_config(state: bool = true) {
+    console.log(state, $("li.page-config-crumb"));
+    if (state) {
+      $("li.page-config-crumb").removeClass("d-none");
+    } else {
+      $("li.page-config-crumb").addClass("d-none");
+      $("li.page-summary-crumb").addClass("d-none");
+      $("li.page-download-crumb").addClass("d-none");
+    }
+  },
+
+  enable_links_summary(state: bool = true) {
+    console.log(state, $("li.page-summary-crumb"));
+    if (state) {
+      $("li.page-config-crumb").removeClass("d-none");
+      $("li.page-summary-crumb").removeClass("d-none");
+    } else {
+      $("li.page-summary-crumb").addClass("d-none");
+      $("li.page-download-crumb").addClass("d-none");
+    }
+  },
+
+  enable_links_download(state: bool = true) {
+    console.log(state, $("li.page-summary-crumb"));
+    if (state) {
+      $("li.page-config-crumb").removeClass("d-none");
+      $("li.page-summary-crumb").removeClass("d-none");
+      $("li.page-download-crumb").removeClass("d-none");
+    } else {
+      $("li.page-download-crumb").addClass("d-none");
+    }
   },
 
   change_page(event) {
@@ -52,44 +73,53 @@ const APP = {
     if (window.location.hash === "#page-info") {
       document.querySelector("div#page-loading").classList.add("d-none");
       document.querySelector("div#page-info").classList.remove("d-none");
+      document.querySelector("div#page-import").classList.add("d-none");
+      document.querySelector("div#page-config").classList.add("d-none");
+      document.querySelector("div#page-summary").classList.add("d-none");
+      document.querySelector("div#page-download").classList.add("d-none");
+    } else if (window.location.hash === "#page-import") {
+      document.querySelector("div#page-loading").classList.add("d-none");
+      document.querySelector("div#page-info").classList.add("d-none");
+      document.querySelector("div#page-import").classList.remove("d-none");
       document.querySelector("div#page-config").classList.add("d-none");
       document.querySelector("div#page-summary").classList.add("d-none");
       document.querySelector("div#page-download").classList.add("d-none");
     } else if (window.location.hash === "#page-config") {
       document.querySelector("div#page-loading").classList.add("d-none");
       document.querySelector("div#page-info").classList.add("d-none");
+      document.querySelector("div#page-import").classList.add("d-none");
       document.querySelector("div#page-config").classList.remove("d-none");
       document.querySelector("div#page-summary").classList.add("d-none");
       document.querySelector("div#page-download").classList.add("d-none");
 
-      document
-        .querySelector("li#page-info-summary-crumb")
-        .classList.remove("d-none");
-
-      APP.test(APP.stations, APP.country_details);
+      console.log(APP.data_version, APP.data_upload.version);
+      if (APP.data_version !== APP.data_upload.version) {
+        APP.data_version = APP.data_upload.version;
+        //APP.stations.process();
+        APP.stations = new ParseStations(APP.data_upload.imported_harmonics);
+        APP.country_details = country_attributes(APP.stations.stations);
+        display_countries(APP.country_details);
+        APP.enable_links_summary();
+      }
     } else if (window.location.hash === "#page-summary") {
       document.querySelector("div#page-loading").classList.add("d-none");
       document.querySelector("div#page-info").classList.add("d-none");
+      document.querySelector("div#page-import").classList.add("d-none");
       document.querySelector("div#page-config").classList.add("d-none");
       document.querySelector("div#page-summary").classList.remove("d-none");
       document.querySelector("div#page-download").classList.add("d-none");
 
-      document
-        .querySelector("li#page-info-download-crumb")
-        .classList.remove("d-none");
-      document
-        .querySelector("li#page-info-download-crumb-2")
-        .classList.remove("d-none");
-
       generate_summary(APP.country_details);
+      APP.enable_links_download();
     } else if (window.location.hash === "#page-download") {
       document.querySelector("div#page-loading").classList.add("d-none");
       document.querySelector("div#page-info").classList.add("d-none");
+      document.querySelector("div#page-import").classList.add("d-none");
       document.querySelector("div#page-config").classList.add("d-none");
       document.querySelector("div#page-summary").classList.add("d-none");
       document.querySelector("div#page-download").classList.remove("d-none");
 
-      download(APP.country_details, APP.stations);
+      download(APP.country_details, APP.stations.stations);
     }
   },
 

@@ -6,7 +6,7 @@ import {
 import { CountryDetails, CountriesFlat } from "./types";
 import { constituent_names, harmonics_header } from "./harmonics_header";
 
-function uplad_file(filename: string, content: string) {
+function upload_file(filename: string, content: string) {
   console.log(filename);
 
   const link = document.createElement("a");
@@ -138,7 +138,49 @@ function download_harmonic(
     }
   }
 
-  uplad_file("HARMONICS", lines.join("\n"));
+  upload_file("HARMONICS", lines.join("\n"));
+}
+
+function calculate_datum(
+  station_name: string,
+  constituents: Map<string, object>,
+) {
+  //for(const [name, values] of constituents){
+  //}
+  const K1 = constituents.get("K1");
+  const O1 = constituents.get("O1");
+  const M2 = constituents.get("M2");
+  const S2 = constituents.get("S2");
+
+  if (!K1) {
+    console.warn(`No K1 constituent for ${station_name}`);
+    return null;
+  }
+  if (!O1) {
+    console.warn(`No O1 constituent for ${station_name}`);
+    return null;
+  }
+  if (!M2) {
+    console.warn(`No M2 constituent for ${station_name}`);
+    return null;
+  }
+  if (!S2) {
+    console.warn(`No S2 constituent for ${station_name}`);
+    return null;
+  }
+
+  const C1 =
+    (Number(O1.amp) + Number(K1.amp)) / (Number(M2.amp) + Number(S2.amp));
+  //console.log(`Courtier criterion: ${station_name}  ${C1}`);
+
+  const N2 = constituents.get("N2");
+  const K2 = constituents.get("K2");
+
+  const Z0 =
+    (Number(M2.amp) + Number(S2.amp) + Number(N2.amp) + Number(K2.amp)) / 100;
+  console.log(`Lowest tide: \t${station_name}  ${Z0}`);
+
+  return Z0;
 }
 
 function get_station_harmonic(
@@ -154,7 +196,7 @@ function get_station_harmonic(
   const country_stations = stations.get(country);
   const lines = [];
   lines.push("#");
-  lines.push(`# ${idx_label}    ${region_names[2]} , ${region_names[1]}`);
+  lines.push(`# ${idx_label}    ${region_names[2]} ${region_names[1]}`);
   lines.push("#");
   lines.push("#");
 
@@ -163,12 +205,16 @@ function get_station_harmonic(
     lines.push(`# datum_information: ${station.get("datum_information")}`);
     lines.push(`${station_name}, ${region_names[2]}, ${region_names[1]}`);
     lines.push(`${timezone} :test/timezone`);
-    lines.push("0.0 meters");
+
+    const constituents = station.get("constituents");
+
+    const datum = calculate_datum(station_name, constituents);
+    lines.push(`${datum} meters`);
+
     for (const constituent_name of constituent_names) {
-      const constituents = station.get("constituents");
       const constituent = constituents.get(constituent_name);
       if (constituent) {
-        const amp = constituent.amp;
+        const amp = constituent.amp / 100;
         const pha = constituent.pha;
         lines.push(`${constituent_name}  ${amp}  ${pha}`);
       } else {
@@ -221,6 +267,8 @@ function format_timezone(
 function get_station_idxs(
   country: string,
   idx_label: string,
+  country_name: string,
+  sub_region_name: string,
   stations: TidalStations,
   timezone: string,
 ): [string] {
@@ -228,7 +276,7 @@ function get_station_idxs(
   for (const [stations_name, station] of stations.get(country)) {
     const lat = station.get("lat");
     const lon = station.get("lon");
-    let line = `T${idx_label} ${lon} ${lat} ${timezone} ${stations_name}`;
+    let line = `T${idx_label} ${lon} ${lat} ${timezone} ${stations_name}, ${country_name}, ${sub_region_name}`;
     lines.push(line);
   }
 
@@ -313,13 +361,20 @@ function download_harmonic_idx(
           country_details,
         );
 
-        const new_lines = get_station_idxs(cca3, idx_label, stations, timezone);
+        const new_lines = get_station_idxs(
+          cca3,
+          idx_label,
+          country_name,
+          sub_region_name,
+          stations,
+          timezone,
+        );
         lines = lines.concat(new_lines);
       }
     }
   }
 
-  //uplad_file("HARMONICS.idx", lines.join("\n"));
+  upload_file("HARMONICS.idx", lines.join("\n"));
 }
 
 export function download(

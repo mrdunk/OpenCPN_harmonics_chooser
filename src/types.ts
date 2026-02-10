@@ -1,9 +1,10 @@
 /*
  * Non tide specific information about the countries we have tidal information for.
- * Can be calculated on startup before any user configuration.
+ * Can be calculated on startup before any user configuration but we do need a
+ * list of countries to populate.
  * Contains recursive Map() objects.
  * Map() keys are the English language version of region, sub_region and countries.
- * The country's data contains the world_countries npm data
+ * The country's data contains the world_countries npm entry
  * and an additional list of timezones for that country.
  * Returned by the country_code_lookup(countries) method.
  */
