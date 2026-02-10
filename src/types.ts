@@ -61,7 +61,6 @@ export type CountryNested = {
   selected: boolean;
 };
 
-
 export type ParsedStationLine = {
   amp: string;
   amp_std: string;

@@ -18,7 +18,7 @@ export class ParseStations {
 
     this.raw_data.forEach((element) => {
       const csv = element[1];
-      if(csv) {
+      if (csv) {
         this.parse_data(csv);
       }
     });
@@ -58,10 +58,16 @@ export class ParseStations {
         continue;
       }
 
-      const country = this.stations.getOrInsert(data_line.country, new Map());
+      //const country = this.stations.getOrInsert(data_line.country, new Map());
+      let country = this.stations.get(data_line.country);
+      if(! country) {
+        country = new Map();
+        this.stations.set(data_line.country, country);
+      }
       if (!country.has(data_line.tide_gauge_name)) {
         this.station_count += 1;
       }
+
       const station = country.getOrInsert(data_line.tide_gauge_name, new Map());
       const constituents = station.getOrInsert("constituents", new Map());
 
@@ -87,7 +93,10 @@ export class ParseStations {
     };
   }
 
-  private update_station(data_line: ParsedStationLine, existing_station: Map<string, string>) {
+  private update_station(
+    data_line: ParsedStationLine,
+    existing_station: Map<string, string>,
+  ) {
     const station_properties = new Set<string>([
       "lat",
       "lon",

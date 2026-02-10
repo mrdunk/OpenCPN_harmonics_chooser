@@ -1,16 +1,30 @@
 {
     "compilerOptions": {
         "outDir": "./dist/",
-        "sourceMap": true,
-        "strict": true,
-        "noImplicitReturns": true,
-        "noImplicitAny": true,
-        "module": "es6",
-        "moduleResolution": "node",
-        //"target": "es5",
-        "target": "es2015",
-        "allowJs": true,
-        "allowSyntheticDefaultImports": true
+
+    // This block taken from https://github.com/tsconfig/bases/blob/main/bases/recommended.json
+    "target": "es2016",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true
+
+//        "outDir": "./dist/",
+//        "sourceMap": true,
+//        "strict": true,
+//        "noImplicitReturns": true,
+//        "noImplicitAny": true,
+//        //"module": "es6",
+//        "module": "commonjs",
+//        //"moduleResolution": "node",
+//        //"target": "es5",
+//        //"target": "es2015",
+//        "target": "es6",
+//        "esModuleInterop": true,
+        //"lib": ["DOM", "ES6"],
+//        "allowJs": true,
+//        "allowSyntheticDefaultImports": true,
     },
     "include": [
         "./src/*"

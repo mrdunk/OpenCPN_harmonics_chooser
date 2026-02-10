@@ -122,25 +122,6 @@ const APP = {
       download(APP.country_details, APP.stations.stations);
     }
   },
-
-  test(stations, country_details) {
-    const country_details_cca3s = new Set();
-    for (const [region_name, region] of country_details) {
-      for (const [sub_region_name, sub_region] of region) {
-        for (const [country_name, country] of sub_region) {
-          //console.log(region_name, sub_region_name, country_name);
-          //console.log(country.country.cca3);
-          country_details_cca3s.add(country.country.cca3);
-        }
-      }
-    }
-
-    const stations_cca3s = new Set(stations.keys());
-
-    console.log(country_details_cca3s);
-    console.log(stations_cca3s);
-    console.log(stations_cca3s.symmetricDifference(country_details_cca3s));
-  },
 };
 
 document.addEventListener("DOMContentLoaded", APP.setup);

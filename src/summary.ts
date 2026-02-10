@@ -38,7 +38,7 @@ export function get_selected_countries(): [RegionsNested, CountriesFlat] {
           };
           regions_nested.set(region, regions_stats);
         }
-        regions_stats.countries_selected += child.checked;
+        regions_stats.countries_selected += Number(child.checked);
         regions_stats.countries_existing += 1;
 
         let subregions_stats = regions_stats.sub_regions.get(sub_region);
@@ -50,7 +50,7 @@ export function get_selected_countries(): [RegionsNested, CountriesFlat] {
           };
           regions_stats.sub_regions.set(sub_region, subregions_stats);
         }
-        subregions_stats.countries_selected += child.checked;
+        subregions_stats.countries_selected += Number(child.checked);
         subregions_stats.countries_existing += 1;
         subregions_stats.countries.add({
           country: country,
@@ -127,7 +127,12 @@ export function country_to_timezone(
     $("input#time-strategy-global").val() == "global"
   ) {
     // Single timezone for all stations.
-    return [$("select#timezone").val()];
+    const val = $("select#timezone").val();
+    if(val === undefined) {
+      console.warn("Could not get \"select#timezone\" HRML element.")
+      return ["0:00"];
+    }
+    return[val as string];
   }
 
   // Attempt to use local time for stations.

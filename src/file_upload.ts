@@ -1,10 +1,10 @@
 export class DataUpload {
-  private upload_button: HTMLElement;
+  private upload_button: JQuery<HTMLElement>;
   private enable_links_config;
   imported_harmonics: Map<string, object>;
   version: number = 0;
 
-  constructor(enable_links_config) {
+  constructor(enable_links_config: boolean) {
     this.imported_harmonics = new Map();
     this.upload_button = $("#select-input-file:file");
     this.upload_button.change(this.import_data);
