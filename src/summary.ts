@@ -79,6 +79,7 @@ function display_row(
   const row = document.createElement("div");
   row.classList.add("row");
   row.classList.add("border");
+  row.classList.add("summary-content");
   report.appendChild(row);
 
   const region_div = document.createElement("div");
@@ -176,9 +177,8 @@ function display(
   regions_nested: RegionsNested,
   country_details: CountryDetails,
 ) {
-  const report = document.createElement("div");
-  report.classList.add("container");
-
+  $("div.summary-content").remove();
+  const report = $("div#report")[0];
   for (const [region, stats] of regions_nested) {
     display_row(
       report,
@@ -218,8 +218,6 @@ function display(
       }
     }
   }
-
-  $("div#report").empty().append(report);
 }
 
 export function generate_summary(country_details: CountryDetails) {

@@ -66,7 +66,6 @@ export class ParseStations {
         continue;
       }
 
-      //const country = this.stations.getOrInsert(data_line.country, new Map());
       let country = this.stations.get(data_line.country);
       if (!country) {
         country = new Map();
@@ -76,14 +75,12 @@ export class ParseStations {
       if (!country.has(data_line.tide_gauge_name)) {
         this.length += 1;
       }
-      //const station = country.getOrInsert(data_line.tide_gauge_name, new Map());
       let station = country.get(data_line.tide_gauge_name);
       if (!station) {
         station = new Map<string, string | TidalStationConstituents>();
         country.set(data_line.tide_gauge_name, station);
       }
 
-      //const constituents = station.getOrInsert("constituents", new Map());
       let constituents = station.get("constituents") as
         | undefined
         | TidalStationConstituents;

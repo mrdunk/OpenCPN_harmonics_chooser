@@ -57,7 +57,7 @@ function form_element(name: string, indent: int, address: string) {
   const label = document.createElement("div");
   label.textContent = name;
   label.classList.add(`col-${11 - indent}`);
-  label.classList.add("display-5");
+  label.classList.add("display-8");
   row.appendChild(label);
 
   const checkbox = document.createElement("input");
@@ -65,14 +65,25 @@ function form_element(name: string, indent: int, address: string) {
   //checkbox.id = ...
   checkbox.value = address;
   checkbox.classList.add("col-1");
-  checkbox.classList.add("form-control");
-  checkbox.classList.add("form-control-sm");
+  checkbox.classList.add("form-check");
+  //checkbox.classList.add("form-control");
+  //checkbox.classList.add("form-control-sm");
   row.appendChild(checkbox);
 
   row.addEventListener("click", click_checkbox);
 
   globalThis.index += 1;
   return row;
+}
+
+export function clear_countries() {
+  const form_div = $("div#regions");
+  if (!form_div) {
+    console.error("Could not find DIV.");
+    return;
+  }
+  form_div.empty();
+  form_div.html("<b>Loading countries....</b>");
 }
 
 export function display_countries(country_details) {
@@ -110,4 +121,15 @@ export function display_countries(country_details) {
       }
     }
   }
+}
+
+export function timezone_callbacks() {
+  $("input#time-strategy-local").click(function (event) {
+    $("select#timezone").attr("disabled", "disabled");
+  });
+  $("input#time-strategy-global").click(function (event) {
+    $("select#timezone").removeAttr("disabled");
+  });
+  $("input#time-strategy-global").prop("checked", true);
+  $("select#timezone").removeAttr("disabled");
 }

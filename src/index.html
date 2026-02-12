@@ -10,9 +10,7 @@
     <!-- Bootstrap -->
     <link
       rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
-      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-      crossorigin="anonymous"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
     />
 
     <title>OpenCPN harmonic file generator.</title>
@@ -30,11 +28,16 @@
       integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
       crossorigin="anonymous"
     ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
-      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-      crossorigin="anonymous"
-    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"></script>
+
+
+    <div class="bg-dark-subtle container sticky-top">
+      <div class="menu">
+        <nav style="--bs-breadcrumb-divider: '>';" class="my-2">
+          <ul class="breadcrumb"></ul>
+        </nav>
+      </div>
+    </div>
 
     <div id="page-loading" class="d-none">
       <div class="jumbotron">
@@ -50,23 +53,6 @@
     </div>
 
     <div id="page-info" class="d-none">
-      <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item hidden" aria-current="page">Info</li>
-          <li class="breadcrumb-item active">
-            <a href="#page-import">Import</a>
-          </li>
-          <li class="breadcrumb-item active page-summary-crumb d-none">
-            <a href="#page-config">Configuration</a>
-          </li>
-          <li class="breadcrumb-item active page-summary-crumb d-none">
-            <a href="#page-summary">Summary</a>
-          </li>
-          <li class="breadcrumb-item active page-download-crumb d-none">
-            <a href="#page-import">Download</a>
-          </li>
-        </ol>
-      </nav>
       <div class="jumbotron">
         <h1>OpenCPN harmonic file generator.</h1>
         <h4 title="sw_version"></h4>
@@ -137,21 +123,6 @@
     </div>
 
     <div id="page-import" class="d-none">
-      <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item active"><a href="#page-info">Info</a></li>
-          <li class="breadcrumb-item hidden">Import</li>
-          <li class="breadcrumb-item active page-config-crumb d-none">
-            <a href="#page-config">Configuration</a>
-          </li>
-          <li class="breadcrumb-item active page-summary-crumb d-none">
-            <a href="#page-summary">Summary</a>
-          </li>
-          <li class="breadcrumb-item active page-download-crumb d-none">
-            <a href="#page-download">Download</a>
-          </li>
-        </ol>
-      </nav>
       <div class="jumbotron">
         <p class="lead">Select downloaded data files to import.</p>
         <input
@@ -169,26 +140,6 @@
     </div>
 
     <div id="page-config" class="d-none">
-      <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item active"><a href="#page-info">Info</a></li>
-          <li class="breadcrumb-item active">
-            <a href="#page-import">Import</a>
-          </li>
-          <li
-            class="breadcrumb-item hidden page-summary-crumb"
-            aria-current="page"
-          >
-            Configuration
-          </li>
-          <li class="breadcrumb-item active page-summary-crumb d-none">
-            <a href="#page-summary">Summary</a>
-          </li>
-          <li class="breadcrumb-item active page-download-crumb d-none">
-            <a href="#page-download">Download</a>
-          </li>
-        </ol>
-      </nav>
       <div class="container">
         <div class="row justify-content-lg-center">
           <div class="col-lg-12">
@@ -308,21 +259,6 @@
     </div>
 
     <div id="page-summary" class="d-none">
-      <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item active"><a href="#page-info">Info</a></li>
-          <li class="breadcrumb-item active">
-            <a href="#page-import">Import</a>
-          </li>
-          <li class="breadcrumb-item active page-config-crumb d-none">
-            <a href="#page-config">Configuration</a>
-          </li>
-          <li class="breadcrumb-item hidden" aria-current="page">Summary</li>
-          <li class="breadcrumb-item active page-download-crumb d-none">
-            <a href="#page-download">Download</a>
-          </li>
-        </ol>
-      </nav>
       <div class="card">
         <div class="card-body">
           <h5 class="card-title">Summary</h5>
@@ -336,30 +272,18 @@
           </h6>
         </div>
       </div>
-      <div id="report"></div>
+      <div id="report" class="container">
+        <div class="row border bg-dark-subtle">
+          <div class="col-1">Region</div>
+          <div class="col-2">Sub-Region</div>
+          <div class="col-3">Country</div>
+          <div class="col-3"></div>
+          <div class="col-1">timezone</div>
+        </div>
+      </div>
     </div>
 
     <div id="page-download" class="d-none">
-      <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item active"><a href="#page-info">Info</a></li>
-          <li class="breadcrumb-item active">
-            <a href="#page-import">Import</a>
-          </li>
-          <li class="breadcrumb-item active page-summary-crumb d-none">
-            <a href="#page-config">Configuration</a>
-          </li>
-          <li class="breadcrumb-item active page-summary-crumb d-none">
-            <a href="#page-summary">Summary</a>
-          </li>
-          <li
-            class="breadcrumb-item hidden page-download-crumb"
-            aria-current="page"
-          >
-            Download
-          </li>
-        </ol>
-      </nav>
       <div class="card">
         <div class="card-body">
           <h5 class="card-title">Downloads</h5>

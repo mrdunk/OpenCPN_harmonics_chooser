@@ -36,7 +36,6 @@ export class DataUpload {
   };
 
   private read_file = (file, reader) => {
-    console.log(file);
     const content = reader.result;
     const hash = this.generateHash(content);
     const key = `${file.name}_${hash}`;
@@ -46,7 +45,7 @@ export class DataUpload {
       return;
     }
     this.imported_harmonics.set(key, [file.type, content]);
-    this.enable_links_config();
+    this.enable_links_config(true);
 
     // Clear any previous value in file selector.
     $("input.select-input-file:file").val("");
