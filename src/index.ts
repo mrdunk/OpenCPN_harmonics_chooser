@@ -27,6 +27,7 @@ abstract class PageBase {
 
   /* Will disable all pages except the one matching the URLs hash value. */
   static hashchange() {
+    console.log(`Hash change: ${window.location.hash}`);
     for (const page of PageBase.all_pages) {
       if (window.location.hash === `#${page.hash}`) {
         page.enable_page();
@@ -35,7 +36,7 @@ abstract class PageBase {
   }
 
   /* To be called immediately after instantiating this class. */
-  setup() {
+  public setup() {
     PageBase.all_pages.push(this);
 
     this.populate_menu();
@@ -45,26 +46,30 @@ abstract class PageBase {
 
   /* Add this page's entry to the breadcrumb menu. */
   private populate_menu() {
-    console.log("populate_menu", this.name, this.index, this.hash);
+    const element_menu = $("div.menu");
+    let menu_element = element_menu.find(`div#menu-element-${this.index}`);
 
-    const element_menu = $("div.menu ul");
-    let menu_button = element_menu.find(`li#menu-button-${this.index}`);
-    if (menu_button.length) {
+    if (menu_element.length) {
       // Button already exists.
       return this;
     }
 
-    menu_button = $(`<li>${this.name}</li>`).attr(
-      "id",
-      `menu-button-${this.index}`,
+    menu_element = $(`<div id="menu-element-${this.index}"></div>`);
+    const menu_button = $(
+      `<input type="radio" class="btn-check" name="main-menu" id="menu-button-${this.index}" autocomplete="off"></input>`,
     );
-    menu_button.addClass("breadcrumb-item");
-    if (!this.button_visible) {
-      menu_button.addClass("d-none");
-    }
+    const menu_label = $(
+      `<label class="btn btn-outline-primary" for="menu-button-${this.index}">${this.name}</label>`,
+    );
+    menu_element.append(menu_button);
+    menu_element.append(menu_label);
+
+    menu_button.on("change", (event) => {
+      window.location.hash = `#${this.hash}`;
+    });
 
     let previous_child = null;
-    for (const child of element_menu.children()) {
+    for (const child of element_menu.children("div")) {
       const child_index = Number(child.id.split("-")[2]);
       if (child_index >= this.index) {
         break;
@@ -73,42 +78,28 @@ abstract class PageBase {
     }
     if (previous_child === null) {
       // No other button exists yet.
-      element_menu.append(menu_button[0]);
+      element_menu.append(menu_element[0]);
     } else {
       // Insert button after next lowest index.
-      previous_child.after(menu_button[0]);
+      previous_child.after(menu_element[0]);
     }
+
+    this.show_button(this.button_visible);
     return this;
   }
 
   /* Make this page's breadcrumb button the active one. */
   private enable_button() {
-    // Disable other buttons.
-    for (const page of PageBase.all_pages) {
-      page.disable_button();
-    }
-
-    // Set this page's button as the active one.
-    const button = $(`li#menu-button-${this.index}`);
-    button.html(`${this.name}`);
-    button.removeClass("active");
-    button.addClass("hidden");
-    button.addClass("breadcrumb-item");
-    return this;
-  }
-
-  private disable_button() {
-    const button = $(`li#menu-button-${this.index}`);
-    button.html(`<a href="#${this.hash}">${this.name}</a>`);
-    button.removeClass("hidden");
-    button.addClass("active");
-    button.addClass("breadcrumb-item");
+    const button = $(`input#menu-button-${this.index}`);
+    console.log(button);
+    button.prop("checked", true);
     return this;
   }
 
   // Display this page's main HTML div.
   // This method can be extended to add further functionally for the inherited pages.
   private enable_page() {
+    console.log("base.enable_page");
     this.enable_button();
     $("div[id^='page-']").addClass("d-none");
     $(`div#${this.hash}`).removeClass("d-none");
@@ -116,17 +107,22 @@ abstract class PageBase {
   }
 
   public show_button(state: boolean) {
+    console.log(state, this.button_visible);
     this.button_visible = state;
+    console.log(state, this.button_visible);
     if (state) {
-      $(`li#menu-button-${this.index}`).removeClass("d-none");
+      console.log("showing:", this.hash);
+      $(`div#menu-element-${this.index}`).removeClass("d-none");
     } else {
-      $(`li#menu-button-${this.index}`).addClass("d-none");
+      console.log("hiding:", this.hash);
+      $(`div#menu-element-${this.index}`).addClass("d-none");
     }
     return this;
   }
 
   // Some pages should hide links to other pages, further in the process.
   private enable_links(state: boolean) {
+    console.log("enable_links", state);
     for (const page of PageBase.all_pages) {
       if (state) {
         if (this.turn_on.includes(page.hash)) {

@@ -83,7 +83,18 @@ export function clear_countries() {
     return;
   }
   form_div.empty();
-  form_div.html("<b>Loading countries....</b>");
+  let placeholder = "";
+  placeholder += "<p><b>Loading countries....</b></p>";
+  placeholder += "<p class='card-text placeholder-glow'>";
+  placeholder += "<span class='placeholder col-10'>test</span>";
+  placeholder += "<span class='placeholder col-10'>test</span>";
+  placeholder += "<span class='placeholder col-10'>test</span>";
+  placeholder += "<span class='placeholder col-10'>test</span>";
+  placeholder += "<span class='placeholder col-10'>test</span>";
+  placeholder += "<span class='placeholder col-10'>test</span>";
+  placeholder += "</p>";
+  placeholder += "<p></p>";
+  form_div.html(placeholder);
 }
 
 export function display_countries(country_details) {
