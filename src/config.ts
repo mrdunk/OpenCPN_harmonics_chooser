@@ -1,9 +1,11 @@
-function click_checkbox(event) {
-  let checkbox = event.target;
-  if (event.target.type !== "checkbox") {
-    for (const child of event.target.parentNode.children) {
+import { CountryDetails} from "./types";
+
+function click_checkbox(event: Event) {
+  let checkbox = event.target as HTMLInputElement;
+  if (checkbox && checkbox.type !== "checkbox" && checkbox.parentNode) {
+    for (const child of checkbox.parentNode.children as HTMLCollection) {
       if (child.type === "checkbox") {
-        checkbox = child;
+        checkbox = child as HTMLInputElement;
         break;
       }
     }
@@ -11,6 +13,9 @@ function click_checkbox(event) {
   }
 
   const form_div = document.querySelector("div#regions");
+  if (!form_div) {
+    return;
+  }
   const all_checkboxes = form_div.querySelectorAll("input");
   const address = checkbox.value;
   let children = [];
@@ -25,17 +30,11 @@ function click_checkbox(event) {
   }
 }
 
-globalThis.index = 0;
-function form_element(name: string, indent: int, address: string) {
+function form_element(name: string, indent: number, address: string) {
   const row = document.createElement("div");
-  row.id = `row-${index}`;
   row.classList.add("row");
   row.classList.add("border");
 
-  // Handle row highlighting.
-  if (globalThis.index % 2) {
-    row.classList.add("bg-light");
-  }
   row.addEventListener("mouseenter", (event) => {
     row.classList.remove("bg-light");
     row.classList.add("bg-secondary");
@@ -66,13 +65,10 @@ function form_element(name: string, indent: int, address: string) {
   checkbox.value = address;
   checkbox.classList.add("col-1");
   checkbox.classList.add("form-check");
-  //checkbox.classList.add("form-control");
-  //checkbox.classList.add("form-control-sm");
   row.appendChild(checkbox);
 
   row.addEventListener("click", click_checkbox);
 
-  globalThis.index += 1;
   return row;
 }
 
@@ -97,7 +93,7 @@ export function clear_countries() {
   form_div.html(placeholder);
 }
 
-export function display_countries(country_details) {
+export function display_countries(country_details: CountryDetails) {
   const form_div = document.querySelector("div#regions");
   if (!form_div) {
     console.error("Could not find DIV.");
@@ -115,6 +111,9 @@ export function display_countries(country_details) {
     form_div.appendChild(form_element(region_label, 0, region_address));
 
     const region_map = country_details.get(region_label);
+    if(!region_map) {
+      continue;
+    }
 
     const region_keys = Array.from(region_map.keys()).sort();
     for (const subregion_label of region_keys) {
@@ -123,6 +122,9 @@ export function display_countries(country_details) {
       form_div.appendChild(form_element(subregion_label, 1, subregion_address));
 
       const subregion_map = region_map.get(subregion_label);
+      if(! subregion_map) {
+        continue;
+      }
 
       const subregion_keys = Array.from(subregion_map.keys()).sort();
       for (const name of subregion_keys) {
@@ -130,6 +132,12 @@ export function display_countries(country_details) {
         const address = `${region_address}|${subregion_label}|${name}`;
         form_div.appendChild(form_element(name, 2, address));
       }
+    }
+  }
+  const children = $("div#regions").children("div.row");
+  for (var i = 0; i < children.length; i++) {
+    if (i % 2) {
+      children[i].classList.add("bg-light");
     }
   }
 }

@@ -67,6 +67,27 @@ export function get_selected_countries(): [RegionsNested, CountriesFlat] {
   return [regions_nested, countries_flat];
 }
 
+function display_total(report: HTMLElement, total: number) {
+  const row = document.createElement("div");
+  row.classList.add("row");
+  row.classList.add("border");
+  row.classList.add("summary-content");
+  report.appendChild(row);
+
+  const div = document.createElement("div");
+  div.classList.add("col-11");
+  row.appendChild(div);
+
+  const message = document.createElement("strong");
+  div.append(message);
+  if (total) {
+    message.textContent = `${total} countries in total.`;
+  } else {
+    message.textContent =
+      "No countries selected. Return to Configuration page.";
+  }
+}
+
 function display_row(
   report: HTMLElement,
   region: string,
@@ -179,6 +200,7 @@ function display(
 ) {
   $("div.summary-content").remove();
   const report = $("div#report")[0];
+  let count = 0;
   for (const [region, stats] of regions_nested) {
     display_row(
       report,
@@ -214,10 +236,12 @@ function display(
             country_details,
           );
           display_row(report, "", "", country.country, 0, 0, timezone);
+          count += 1;
         }
       }
     }
   }
+  display_total(report, count);
 }
 
 export function generate_summary(country_details: CountryDetails) {

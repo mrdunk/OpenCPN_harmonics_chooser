@@ -4,24 +4,31 @@ export class DataUpload {
   imported_harmonics: Map<string, object>;
   version: number = 0;
 
-  constructor(enable_links_config: boolean) {
+  constructor(enable_links_config: (state: boolean) => void) {
     this.imported_harmonics = new Map();
     this.upload_button = $("#select-input-file:file");
     this.upload_button.change(this.import_data);
     this.enable_links_config = enable_links_config;
   }
 
-  private import_data = (event) => {
-    const file = event.target.files[0];
+  private import_data = (event: Event) => {
+    const file_input = event.target;
     // Validate file existence and type
+    if (!file_input) {
+      return false;
+    }
+    const files = (file_input as HTMLInputElement).files;
+    if(!files) {
+      return false;
+    }
+    const file = files[0];
     if (!file) {
       console.log("No file selected. Please choose a file.", "error");
-      return;
+      return false;
     }
-
     if (!file.type.startsWith("text")) {
       console.log("Unsupported file type. Please select a text file.", "error");
-      return;
+      return false;
     }
 
     // Read the file
@@ -33,13 +40,24 @@ export class DataUpload {
       console.log("Error reading the file. Please try again.", "error");
     };
     reader.readAsText(file);
+    return true;
   };
 
-  private read_file = (file, reader) => {
+  private read_file = (file: File, reader: FileReader) => {
     const content = reader.result;
+    if(!content) {
+      // Empty file?
+      console.warn(`Problem reading local file: ${file.name}`);
+      return;
+    }
+    if(typeof(content) != "string") {
+      console.warn(`Problem reading local file: ${file.name}`);
+      return;
+    }
     const hash = this.generateHash(content);
     const key = `${file.name}_${hash}`;
 
+    // Store contents.
     if (this.imported_harmonics.has(key)) {
       console.log(`File already imported: ${file.name}`);
       return;
@@ -50,14 +68,17 @@ export class DataUpload {
     // Clear any previous value in file selector.
     $("input.select-input-file:file").val("");
 
+    // Crate a row on the table displaying the filename the data came from.
     const file_id = `import_file_${key}`;
-    const row = $(`<div id="${file_id}" class="imported-harmonic-file"></div>`);
-    const label = $(`<div>${file.name}</div>`);
-    const del_button = $(
-      `<button type="button" id="del_import_${key}">del</button>`,
+    const row = $(
+      `<div id="${file_id}" class="imported-harmonic-file row border"></div>`,
     );
-    row.append(label);
+    const label = $(`<div class="col-6">${file.name}</div>`);
+    const del_button = $(
+      `<div class="col-2"><button type="button" id="del_import_${key}" class="btn btn-primary btn-sm">Remove file</button></div>`,
+    );
     row.append(del_button);
+    row.append(label);
     $("#imported-harmonic-files").append(row);
 
     this.version += 1;
@@ -86,7 +107,7 @@ export class DataUpload {
     return hash;
   }
 
-  private escapeSelector(selector) {
+  private escapeSelector(selector: string): string {
     return selector.replace(/(:|\.|\[|\])/g, "\\$1");
   }
 }

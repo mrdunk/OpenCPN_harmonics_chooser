@@ -8,7 +8,7 @@
   "source": "./src/",
   "scripts": {
     "clean": "rm dist/bundle.js",
-    "format-check": "prettier ./src/**/* --check . & tsc --noEmit",
+    "format-check": "prettier ./src/**/* --check . & tsc --downlevelIteration --noEmit",
     "format": "prettier ./src/**/* --write .",
     "start": "parcel src/index.html",
     "build-prod": "parcel build src/index.html"
@@ -25,6 +25,7 @@
   "devDependencies": {
     "@parcel/config-default": "^2.16.4",
     "@types/bootstrap": "^5.2.10",
+    "@types/countries-and-timezones": "^3.2.2",
     "@types/jquery": "^3.5.33",
     "@types/papaparse": "^5.5.2",
     "buffer": "^6.0.3",

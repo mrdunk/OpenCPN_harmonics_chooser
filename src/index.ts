@@ -7,6 +7,7 @@ import { ParseStations, country_attributes } from "./parse_data";
 import { generate_summary } from "./summary";
 import { download } from "./download";
 import { DataUpload } from "./file_upload";
+import { CountryDetails, TidalStations } from "./types";
 
 const sw_version = "v0.1.0";
 
@@ -22,7 +23,7 @@ abstract class PageBase {
 
   // The following are data containers populated by some pages and consumed by others.
   static country_details: CountryDetails;
-  static stations: TidalStations;
+  static stations: ParseStations;
   static data_upload: DataUpload;
 
   /* Will disable all pages except the one matching the URLs hash value. */
@@ -91,15 +92,13 @@ abstract class PageBase {
   /* Make this page's breadcrumb button the active one. */
   private enable_button() {
     const button = $(`input#menu-button-${this.index}`);
-    console.log(button);
     button.prop("checked", true);
     return this;
   }
 
   // Display this page's main HTML div.
   // This method can be extended to add further functionally for the inherited pages.
-  private enable_page() {
-    console.log("base.enable_page");
+  protected enable_page() {
     this.enable_button();
     $("div[id^='page-']").addClass("d-none");
     $(`div#${this.hash}`).removeClass("d-none");
@@ -107,22 +106,17 @@ abstract class PageBase {
   }
 
   public show_button(state: boolean) {
-    console.log(state, this.button_visible);
     this.button_visible = state;
-    console.log(state, this.button_visible);
     if (state) {
-      console.log("showing:", this.hash);
       $(`div#menu-element-${this.index}`).removeClass("d-none");
     } else {
-      console.log("hiding:", this.hash);
       $(`div#menu-element-${this.index}`).addClass("d-none");
     }
     return this;
   }
 
   // Some pages should hide links to other pages, further in the process.
-  private enable_links(state: boolean) {
-    console.log("enable_links", state);
+  protected enable_links(state: boolean) {
     for (const page of PageBase.all_pages) {
       if (state) {
         if (this.turn_on.includes(page.hash)) {
@@ -142,6 +136,8 @@ class PageInfo extends PageBase {
   index: number = 0;
   hash: string = "page-info";
   button_visible: boolean = true;
+  turn_on: string[] = [];
+  turn_off: string[] = [];
 }
 
 class PageImport extends PageBase {
@@ -157,9 +153,10 @@ class PageImport extends PageBase {
     if (PageBase.data_upload) {
       // Already configured the file upload.
       // Everything else happens via callback.
-      return;
+      return this;
     }
     PageBase.data_upload = new DataUpload(this.enable_links.bind(this));
+    return this;
   }
 }
 
@@ -169,6 +166,7 @@ class PageConfig extends PageBase {
   hash: string = "page-config";
   button_visible: boolean = false;
   turn_on: string[] = ["page-summary"];
+  turn_off: string[] = [];
 
   data_version: number = -1;
 
@@ -177,7 +175,7 @@ class PageConfig extends PageBase {
 
     if (this.data_version === PageBase.data_upload.version) {
       // No change in data since last time we visited page.
-      return;
+      return this;
     }
     this.data_version = PageBase.data_upload.version;
 
@@ -189,9 +187,10 @@ class PageConfig extends PageBase {
     });
     worker.postMessage([PageBase.data_upload.imported_harmonics]);
     worker.onmessage = this.worker_callback.bind(this);
+    return this;
   }
 
-  private worker_callback(event) {
+  private worker_callback(event: MessageEvent) {
     PageBase.stations = event.data;
     PageBase.country_details = country_attributes(PageBase.stations.stations);
     display_countries(PageBase.country_details);
@@ -205,11 +204,20 @@ class PageSummary extends PageBase {
   hash: string = "page-summary";
   button_visible: boolean = false;
   turn_on: string[] = ["page-download"];
+  turn_off: string[] = [];
 
   public enable_page() {
     super.enable_page();
-    generate_summary(PageBase.country_details);
-    this.enable_links(true);
+    super.show_button(true);
+    if (PageBase.country_details) {
+      generate_summary(PageBase.country_details);
+      this.enable_links(true);
+    } else {
+      // Data from setup stage has not arrived yet. Try again in 1 second.
+      console.log("Retry page draw in 1 second.");
+      setTimeout(this.enable_page.bind(this), 1000);
+    }
+    return this;
   }
 }
 
@@ -218,10 +226,13 @@ class PageDownload extends PageBase {
   index: number = 4;
   hash: string = "page-download";
   button_visible: boolean = false;
+  turn_on: string[] = [];
+  turn_off: string[] = [];
 
   public enable_page() {
     super.enable_page();
     download(PageBase.country_details, PageBase.stations.stations);
+    return this;
   }
 }
 

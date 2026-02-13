@@ -4,11 +4,12 @@
         // This block taken from 
         //https://github.com/tsconfig/bases/blob/main/bases/recommended.json
         "target": "es2016",
-        "module": "commonjs",
+        "module": "es2020",
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "strict": true,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "importHelpers": true
     },
     "include": [
         "./src/*"

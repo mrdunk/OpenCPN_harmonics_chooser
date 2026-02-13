@@ -36,12 +36,8 @@
       crossorigin="anonymous"
     ></script>
 
-    <div class="container sticky-top">
-      <div
-        class="btn-group menu"
-        role="group"
-        aria-label="Basic radio toggle button group"
-      ></div>
+    <div class="container border sticky-top text-bg-light">
+      <div class="btn-group menu" role="group"></div>
     </div>
 
     <div id="page-loading" class="d-none">
@@ -89,9 +85,17 @@
           maintainers were forced to remove it from the downloads.
         </p>
         <p class="lead">
-          This project instead uses the
+          This project instead uses online data sets. Eg: the
           <a href="https://www.seanoe.org/data/00980/109129/">TICON-4</a> data
-          set that is available under a Creative Commons licence.
+          set contains data on 4838 tidal stations across 116 countries at the
+          time of writing. It's published under a Creative Commons licence so
+          decide for your self if your use case is compatible with their legal
+          requirements. There is also a TICON-4 User Manual which describes the
+          data layout.
+        </p>
+        <p class="lead">
+          You'll need to download such a data set to your local device before
+          making use of this app.
         </p>
         <hr class="my-4" />
         <p class="lead">
@@ -99,7 +103,6 @@
           <a href="https://www.seanoe.org/data/00980/109129/">TICON-4</a>
           authors:
         </p>
-
         <p>
           Hart-Davis Michael, Dettmering Denise, Seitz Florian (2025). TICON-4:
           TIdal CONstants based on GESLA-4 sea-level records. SEANOE.<br />
@@ -129,18 +132,38 @@
 
     <div id="page-import" class="d-none">
       <div class="container">
-        <p class="lead">Select downloaded data files to import.</p>
-        <input
-          type="file"
-          id="select-input-file"
-          name="select-input-file"
-          accept=".csv"
-          class="d-none"
-        />
-        <label for="select-input-file" id="select-input-file-label"
-          >Click to upload file</label
-        >
-        <div id="imported-harmonic-files"></div>
+        <p class="lead">
+          Before completing this stage you'll need a data file of tidal harmonic
+          constituents downloaded to your local device and formatted into a
+          suitable structure.
+        </p>
+        <p class="lead">
+          If you have decided to make use of the
+          <a href="https://www.seanoe.org/data/00980/109129/">TICON-4</a> data
+          set, go to that site and download a copy to your device which can then
+          be uploaded to this app using the button below.
+        </p>
+      </div>
+      <div class="container">
+        <div id="imported-harmonic-files">
+          <div class="row border">
+            <div class="col-2">
+              <input
+                type="file"
+                id="select-input-file"
+                name="select-input-file"
+                accept=".csv"
+                class="d-none"
+              />
+              <label
+                for="select-input-file"
+                id="select-input-file-label"
+                class="btn btn-primary btn-sm"
+                >Add file</label
+              >
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -152,7 +175,9 @@
               <div class="card-body">
                 Configuration settings for generating your Harmonics files.<br />
                 When you have finished selecting, click ahead to the
-                <a href="#page-summary" class="badge badge-primary">Summary</a>
+                <a href="#page-summary" class="btn btn-primary btn-sm"
+                  >Summary</a
+                >
                 section.
               </div>
             </div>
@@ -270,10 +295,13 @@
           <h6 class="card-subtitle mb-2 text-muted">
             Look over the selected countries below.<br />
             If changes are required, click back to the
-            <a href="#page-config" class="badge badge-primary">Configuration</a>
+            <a href="#page-config" class="btn btn-primary btn-sm"
+              >Configuration</a
+            >
             section and make changes.<br />
             If all looks good, proceed to
-            <a href="#page-download" class="badge badge-primary">Downloads</a>.
+            <a href="#page-download" class="btn btn-primary btn-sm">Downloads</a
+            >.
           </h6>
         </div>
       </div>
@@ -282,7 +310,7 @@
           <div class="col-1">Region</div>
           <div class="col-2">Sub-Region</div>
           <div class="col-3">Country</div>
-          <div class="col-3"></div>
+          <div class="col-3">Count</div>
           <div class="col-1">timezone</div>
         </div>
       </div>

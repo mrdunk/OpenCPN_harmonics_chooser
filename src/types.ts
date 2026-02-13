@@ -96,3 +96,5 @@ export type ParsedStationLine = {
   record_quality: string;
   datum_information: string;
 };
+
+export type ParsedStationLineKey = keyof ParsedStationLine;

@@ -9,6 +9,7 @@ import {
   TidalStationConstituents,
   TidalStationConstituent,
   ParsedStationLine,
+  ParsedStationLineKey,
 } from "./types";
 
 export class ParseStations {
@@ -134,17 +135,21 @@ export class ParseStations {
     ];
     for (const property of station_properties) {
       if (
-        existing_station.has(property) &&
-        data_line[property] !== existing_station.get(property)
+        existing_station.has(property as ParsedStationLineKey) &&
+        data_line[property as ParsedStationLineKey] !==
+          existing_station.get(property)
       ) {
         console.warn(`
       Station: "${data_line.tide_gauge_name}" has differning property: "${property}".
       Existing: ${existing_station.get(property)}
-      New: ${data_line[property]}
+      New: ${data_line[property as ParsedStationLineKey]}
       `);
         return 1;
       }
-      existing_station.set(property, data_line[property]);
+      existing_station.set(
+        property,
+        data_line[property as ParsedStationLineKey],
+      );
     }
     return 0;
   }
