@@ -10,13 +10,117 @@ import {
   TidalStationConstituent,
   ParsedStationLine,
   ParsedStationLineKey,
+  StationMetadata,
+  StationMetadataAndWarn
 } from "./types";
+
+export function parse_station_metadata(
+  csvs: Map<string, object>,
+): StationMetadataAndWarn {
+  const metadata = new Map();
+  const warnings: string[] = [];
+
+  for (const [key, csv] of csvs) {
+    let entries_count = 0;
+    let new_entries_count = 0;
+
+    const [filetype, data, filename] = csv as [string, string, string];
+    const parsed: Papa.ParseResult<any> = Papa.parse(data, {
+      header: true,
+      skipEmptyLines: true,
+    });
+    console.log(parsed);
+
+    if (parsed.errors.length > 0) {
+      console.warn(`Errors parsing the main data file: ${parsed.errors}`);
+      warnings.push(
+        `Metadata file: ${filename} has incorrect format.<br/>This may result in poor station names.`,
+      );
+      continue;
+    }
+
+    const required_keys = ["SITE NAME", "FILE NAME"];
+    const missing_keys = [];
+    for (const required_key of required_keys) {
+      if (parsed.meta.fields === undefined || !parsed.meta.fields.includes(required_key)) {
+        missing_keys.push(required_key);
+      }
+    }
+    if (missing_keys.length > 0) {
+      console.warn(
+        `Did not find keys: ${missing_keys} in metadata file: ${filename}`,
+      );
+      console.warn(`Expected at least these fields: ${required_keys}`);
+      console.warn(`Found these fields: ${parsed.meta.fields}`);
+      warnings.push(
+        `Metadata file: ${filename} has incorrect format.<br/>This may result in poor station names.`,
+      );
+      continue;
+    }
+
+    for (const entry of parsed.data) {
+      const tide_gauge_name = entry["FILE NAME"];
+
+      if (metadata.has(tide_gauge_name)) {
+        const old_filename = metadata
+          .get(tide_gauge_name)
+          .get("metadata_filename");
+        console.warn(
+          `Replacing ${tide_gauge_name}. Originally from ${old_filename}. Replaced by ${filename}`,
+        );
+      } else {
+        new_entries_count += 1;
+      }
+      entries_count += 1;
+
+      const map = new Map();
+      metadata.set(tide_gauge_name, map);
+
+      for (const [key, value] of Object.entries(entry)) {
+        map.set(key, value);
+      }
+
+      map.set("metadata_filename", filename);
+
+      const site_name = entry["SITE NAME"];
+      const human_name = site_name
+        .replace(/([A-Z,0-9]+)/g, " $1")
+        .replace(/_/g, "")
+        .trim();
+      map.set("human_name", human_name);
+    }
+
+    if (new_entries_count === entries_count) {
+      console.info(
+        `Found ${new_entries_count} new metadata entries in ${filename}`,
+      );
+    } else {
+      console.info(
+        `Found ${new_entries_count} new metadata entries out of ${entries_count} metadata entries total in ${filename}`,
+      );
+    }
+
+    if (entries_count === 0) {
+      console.warn(`No metadata entries found in ${filename}`);
+      warnings.push(`No metadata entries found in ${filename}`);
+    } else if (new_entries_count === 0) {
+      console.warn(
+        `All metadata entries found in ${filename} were already present in another file.`,
+      );
+      warnings.push(
+        `All metadata entries found in ${filename} were already present in another file.`,
+      );
+    }
+  }
+  return [metadata, warnings];
+}
 
 export class ParseStations {
   private csv: string = "";
   private harmonics_data: ParsedStationLine[];
   private raw_data: Map<string, string[]>;
   stations: TidalStations;
+  warnings: string[] = [];
   length: number;
 
   constructor(raw_data: Map<string, string[]>) {
@@ -26,32 +130,73 @@ export class ParseStations {
     this.stations = new Map();
 
     this.raw_data.forEach((element) => {
-      const csv = element[1];
-      if (csv) {
-        this.parse_data(csv);
+      const [file_type, csv, filename] = element;
+      if (csv.length > 0) {
+        this.parse_data(filename, csv);
       }
     });
 
-    console.log(`Found: ${this.harmonics_data.length} entries in parsed data`);
+    console.info(
+      `Found: ${this.harmonics_data.length} Harmonics Contituents in all files.`,
+    );
 
-    const length = this.consolidate_stations();
+    this.consolidate_stations();
 
-    console.log(`Consolidated to: ${this.length} individual stations;`);
+    console.info(`Consolidated to: ${this.length} individual stations;`);
   }
 
   // Turn csv data into a JS list of harmonic constituents.
-  private parse_data(csv: string) {
+  private parse_data(filename: string, csv: string) {
     const parsed = Papa.parse(csv, {
       header: true,
       skipEmptyLines: true,
     });
 
     if (parsed.errors.length > 0) {
-      console.warn(`Errors parsing the main data file: ${parsed.errors}`);
+      console.warn(
+        `Errors parsing file: ${filename}, errors: ${parsed.errors}`,
+      );
+    }
+
+    const required_keys = [
+      "lat",
+      "lon",
+      "con",
+      "amp",
+      "pha",
+      "tide_gauge_name",
+      "country",
+    ];
+    const missing_keys = [];
+    for (const required_key of required_keys) {
+      if (parsed.meta.fields === undefined || 
+        !parsed.meta.fields.includes(required_key)) {
+        missing_keys.push(required_key);
+      }
+    }
+    if (missing_keys.length > 0) {
+      console.warn(
+        `Did not find keys: ${missing_keys} in metadata file: ${filename}`,
+      );
+      console.warn(`Expected at least these fields: ${required_keys}`);
+      console.warn(`Found these fields: ${parsed.meta.fields}`);
+      this.warnings.push(
+        `Tidal Harmonics Constituent file: ${filename} has incorrect format.<br/>No stations in this file. Return to "Import" page.`,
+      );
+      return;
     }
 
     const harmonics_data = parsed.data as ParsedStationLine[];
     this.harmonics_data = this.harmonics_data.concat(harmonics_data);
+
+    if (harmonics_data.length === 0) {
+      console.warn(`No metadata entries found in ${filename}`);
+      this.warnings.push(`No metadata entries found in ${filename}`);
+    }
+
+    console.info(
+      `Found ${harmonics_data.length} Harmonics Contituents in file: ${filename}`,
+    );
   }
 
   // Outputs recursive Map() objects of consolidated station information.
@@ -100,6 +245,11 @@ export class ParseStations {
       constituents.set(data_line.con, this.make_constituent(data_line));
       error_count += this.update_station(data_line, station);
     }
+    if (error_count > 0) {
+      this.warnings.push(
+        `${error_count} errors while formatting tidal stations. Look at browser's Web Developer's console for deatins on which station(s).`,
+      );
+    }
   }
 
   private make_constituent(
@@ -139,11 +289,10 @@ export class ParseStations {
         data_line[property as ParsedStationLineKey] !==
           existing_station.get(property)
       ) {
-        console.warn(`
-      Station: "${data_line.tide_gauge_name}" has differning property: "${property}".
+        const message = `Station: "${data_line.tide_gauge_name}" property: "${property}" is being updated.
       Existing: ${existing_station.get(property)}
-      New: ${data_line[property as ParsedStationLineKey]}
-      `);
+      New: ${data_line[property as ParsedStationLineKey]}`;
+        console.warn(message);
         return 1;
       }
       existing_station.set(

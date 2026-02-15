@@ -3,11 +3,15 @@ import {
   display_countries,
   clear_countries,
 } from "./config";
-import { ParseStations, country_attributes } from "./parse_data";
+import {
+  ParseStations,
+  country_attributes,
+  parse_station_metadata,
+} from "./parse_data";
 import { generate_summary } from "./summary";
 import { download } from "./download";
 import { DataUpload } from "./file_upload";
-import { CountryDetails, TidalStations } from "./types";
+import { CountryDetails, StationMetadata, TidalStations } from "./types";
 
 const sw_version = "v0.1.0";
 
@@ -18,13 +22,16 @@ abstract class PageBase {
   abstract hash: string; // URL hash and class attribute of the pages main HTML div.
   abstract button_visible: boolean;
   static all_pages: PageBase[] = [];
+  static warnings: string[] = [];
   abstract turn_on: string[];
   abstract turn_off: string[];
 
   // The following are data containers populated by some pages and consumed by others.
   static country_details: CountryDetails;
   static stations: ParseStations;
+  static station_metadata: StationMetadata;
   static data_upload: DataUpload;
+  static metadata_upload: DataUpload;
 
   /* Will disable all pages except the one matching the URLs hash value. */
   static hashchange() {
@@ -32,6 +39,9 @@ abstract class PageBase {
     for (const page of PageBase.all_pages) {
       if (window.location.hash === `#${page.hash}`) {
         page.enable_page();
+        if (PageBase.display_warnings) {
+          PageBase.display_warnings();
+        }
       }
     }
   }
@@ -102,7 +112,46 @@ abstract class PageBase {
     this.enable_button();
     $("div[id^='page-']").addClass("d-none");
     $(`div#${this.hash}`).removeClass("d-none");
+
     return this;
+  }
+
+  protected display_warnings() {
+    if (PageBase.warnings.length === 0) {
+      return;
+    }
+
+    const modal_html = document.getElementById("warningModal");
+    if(!modal_html) {
+      return;
+    }
+
+    let modal = bootstrap.Modal.getOrCreateInstance("#warningModal");
+    console.log(modal);
+    if (!modal) {
+      const options = {};
+      modal = new bootstrap.Modal(modal_html, options);
+    }
+    const modal_body = modal_html.querySelector(".modal-body");
+    if(!modal_body) {
+      return;
+    }
+
+    let modal_message = "<ul>";
+    while (PageBase.warnings.length > 0) {
+      const warning = PageBase.warnings.pop();
+      modal_message += `<li>${warning}</li>`;
+    }
+    modal_message += "</ul>";
+
+    modal_body.innerHTML += modal_message;
+    modal.show();
+
+    modal_html.addEventListener("hidden.bs.modal", (event) => {
+      modal_body.innerHTML = "";
+    });
+
+    PageBase.warnings = [];
   }
 
   public show_button(state: boolean) {
@@ -150,12 +199,25 @@ class PageImport extends PageBase {
 
   public enable_page() {
     super.enable_page();
+
     if (PageBase.data_upload) {
       // Already configured the file upload.
       // Everything else happens via callback.
       return this;
     }
-    PageBase.data_upload = new DataUpload(this.enable_links.bind(this));
+
+    PageBase.data_upload = new DataUpload(
+      "harmonic",
+      this.enable_links.bind(this),
+    );
+
+    if (PageBase.metadata_upload) {
+      // Already configured the file upload.
+      // Everything else happens via callback.
+      return this;
+    }
+    PageBase.metadata_upload = new DataUpload("metadata");
+
     return this;
   }
 }
@@ -173,8 +235,14 @@ class PageConfig extends PageBase {
   public enable_page() {
     super.enable_page();
 
+    const [metadata, warnings] = parse_station_metadata(
+      PageBase.metadata_upload.imported_data,
+    );
+    PageBase.station_metadata = metadata;
+    PageBase.warnings.push(...warnings);
+
     if (this.data_version === PageBase.data_upload.version) {
-      // No change in data since last time we visited page.
+      // No change in station data since last time we visited page.
       return this;
     }
     this.data_version = PageBase.data_upload.version;
@@ -185,16 +253,19 @@ class PageConfig extends PageBase {
     const worker = new Worker(new URL("worker.js", import.meta.url), {
       type: "module",
     });
-    worker.postMessage([PageBase.data_upload.imported_harmonics]);
+    worker.postMessage([PageBase.data_upload.imported_data]);
     worker.onmessage = this.worker_callback.bind(this);
+
     return this;
   }
 
   private worker_callback(event: MessageEvent) {
     PageBase.stations = event.data;
+    PageBase.warnings.push(...PageBase.stations.warnings);
     PageBase.country_details = country_attributes(PageBase.stations.stations);
     display_countries(PageBase.country_details);
     this.enable_links(true);
+    this.display_warnings();
   }
 }
 
@@ -217,6 +288,7 @@ class PageSummary extends PageBase {
       console.log("Retry page draw in 1 second.");
       setTimeout(this.enable_page.bind(this), 1000);
     }
+
     return this;
   }
 }
@@ -231,7 +303,14 @@ class PageDownload extends PageBase {
 
   public enable_page() {
     super.enable_page();
-    download(PageBase.country_details, PageBase.stations.stations);
+    const download_button = $("a#download-now").click(() => {
+      download(
+        PageBase.country_details,
+        PageBase.stations.stations,
+        PageBase.station_metadata,
+      );
+    });
+
     return this;
   }
 }
@@ -245,7 +324,7 @@ function run_app() {
   const t3 = new PageSummary().setup();
   const t4 = new PageDownload().setup();
 
-  $(window).on("hashchange", PageBase.hashchange);
+  $(window).on("hashchange", PageBase.hashchange.bind(t0));
 
   if (window.location.hash != "#page-info") {
     window.location.hash = "#page-info";

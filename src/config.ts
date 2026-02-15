@@ -1,4 +1,4 @@
-import { CountryDetails} from "./types";
+import { CountryDetails } from "./types";
 
 function click_checkbox(event: Event) {
   let checkbox = event.target as HTMLInputElement;
@@ -111,7 +111,7 @@ export function display_countries(country_details: CountryDetails) {
     form_div.appendChild(form_element(region_label, 0, region_address));
 
     const region_map = country_details.get(region_label);
-    if(!region_map) {
+    if (!region_map) {
       continue;
     }
 
@@ -122,7 +122,7 @@ export function display_countries(country_details: CountryDetails) {
       form_div.appendChild(form_element(subregion_label, 1, subregion_address));
 
       const subregion_map = region_map.get(subregion_label);
-      if(! subregion_map) {
+      if (!subregion_map) {
         continue;
       }
 

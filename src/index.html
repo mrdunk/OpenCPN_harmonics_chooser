@@ -143,24 +143,83 @@
           set, go to that site and download a copy to your device which can then
           be uploaded to this app using the button below.
         </p>
+        <p class="lead">
+          The "tide_gauge_name" used in the TICON-4 data sets are not optimized
+          for human readability. TICON-4 is based on the
+          <a href="https://gesla787883612.wordpress.com/downloads/">GESLA</a>
+          data. That page exports a file labeled "GESLA-4 CSV META-DATA FILE".
+          That file can also be provided to this app which will automatically
+          translate the station names to a more human readable format.
+        </p>
       </div>
       <div class="container">
-        <div id="imported-harmonic-files">
-          <div class="row border">
-            <div class="col-2">
-              <input
-                type="file"
-                id="select-input-file"
-                name="select-input-file"
-                accept=".csv"
-                class="d-none"
-              />
-              <label
-                for="select-input-file"
-                id="select-input-file-label"
-                class="btn btn-primary btn-sm"
-                >Add file</label
-              >
+        <div class="row justify-content-lg-center">
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Main data file(s) (Required)</h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                  Main .csv file containing tidal station harmonic
+                  constituents.<br />
+                  Expected to be in the same format as the TICON-4 data set.<br />
+                  If multiple files are selected, it is assumed they contain
+                  different stations and all will be used.
+                </h6>
+                <div class="card-text">
+                  <div id="imported-harmonic-files">
+                    <div class="row border">
+                      <div class="col-3">
+                        <input
+                          type="file"
+                          id="select-harmonic-file"
+                          name="select-harmonic-file"
+                          accept=".csv"
+                          class="d-none"
+                        />
+                        <label
+                          for="select-harmonic-file"
+                          id="select-harmonic-file-label"
+                          class="btn btn-primary btn-sm"
+                          >Add file</label
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Meta data file(s). (Optional)</h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                  Meta-data .csv file containing improved name mapping.<br />
+                  Expected to be in the same format as the "GESLA-4 CSV
+                  META-DATA FILE".<br />
+                  If multiple files are selected, it is assumed they contain
+                  different stations and all will be used.
+                </h6>
+                <div id="imported-metadata-files">
+                  <div class="row border">
+                    <div class="col-3">
+                      <input
+                        type="file"
+                        id="select-metadata-file"
+                        name="select-metadata-file"
+                        accept=".csv"
+                        class="d-none"
+                      />
+                      <label
+                        for="select-metadata-file"
+                        id="select-metadata-file-label"
+                        class="btn btn-primary btn-sm"
+                        >Add file</label
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -320,11 +379,53 @@
       <div class="card">
         <div class="card-body">
           <h5 class="card-title">Downloads</h5>
+          <p>
+            Clicking the button below will download the HARMONICS and
+            HARMONICS.idx files to your browser's Downloads directory.
+          </p>
+          <p>
+            You many not be notified by your browser so check the Downloads
+            directory after clicking the button.
+          </p>
+          <a id="download-now" class="btn btn-primary btn-sm">Download</a>
         </div>
       </div>
     </div>
 
     <div id="app"></div>
+
+    <div
+      class="modal fade"
+      id="warningModal"
+      tabindex="-1"
+      aria-labelledby="warningModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-warning-subtle">
+            <h1 class="modal-title fs-5" id="warningModalLabel">Warning</h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">Test modal.</div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="index.ts"></script>
   </body>
 </html>

@@ -98,3 +98,8 @@ export type ParsedStationLine = {
 };
 
 export type ParsedStationLineKey = keyof ParsedStationLine;
+
+/*
+ */
+export type StationMetadata = Map<string, Map<string, string>>;
+export type StationMetadataAndWarn = [Map<string, Map<string, string>>, string[]];

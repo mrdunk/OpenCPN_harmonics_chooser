@@ -3,10 +3,17 @@ import {
   no_timezone,
   country_to_timezone,
 } from "./summary";
-import { CountryDetails, CountriesFlat, TidalStations, TidalStationConstituents, TidalStationConstituent } from "./types";
+import {
+  CountryDetails,
+  CountriesFlat,
+  TidalStations,
+  TidalStationConstituents,
+  TidalStationConstituent,
+  StationMetadata,
+} from "./types";
 import { constituent_names, harmonics_header } from "./harmonics_header";
 
-function upload_file(filename: string, content: string) {
+function pull_file(filename: string, content: string) {
   console.log(filename);
 
   const link = document.createElement("a");
@@ -95,6 +102,7 @@ function download_harmonic(
   country_details: CountryDetails,
   selected_countries: CountriesFlat,
   stations: TidalStations,
+  station_metadata: StationMetadata,
   translate,
 ) {
   console.log(constituent_names.length);
@@ -125,23 +133,31 @@ function download_harmonic(
           country_name,
           country_details,
         );
-        const region_names: [string, string, string] = [region_name, sub_region_name, country_name];
+        const region_names: [string, string, string] = [
+          region_name,
+          sub_region_name,
+          country_name,
+        ];
         const new_lines = get_station_harmonic(
           cca3,
           region_names,
           idx_label,
           timezone,
           stations,
+          station_metadata,
         );
         lines = lines.concat(new_lines);
       }
     }
   }
 
-  upload_file("HARMONICS", lines.join("\n"));
+  pull_file("HARMONICS", lines.join("\n"));
 }
 
-function courtier_criterion(constituents: Map<string, TidalStationConstituent>, station_name: string): null | number {
+function courtier_criterion(
+  constituents: Map<string, TidalStationConstituent>,
+  station_name: string,
+): null | number {
   // See
   // https://ihr.iho.int/articles/estimation-of-nautical-chart-datum-by-the-statistical-method-in-micro-and-meso-tidal-regime-an-alternative-to-the-balay-harmonic-method/
   // for information on how Lowest Astronomical Tides are calculated.
@@ -173,7 +189,10 @@ function courtier_criterion(constituents: Map<string, TidalStationConstituent>, 
   return Number(C1.toFixed(3));
 }
 
-function diurnal_inequality(constituents: Map<string, TidalStationConstituent>, station_name: string): number | null {
+function diurnal_inequality(
+  constituents: Map<string, TidalStationConstituent>,
+  station_name: string,
+): number | null {
   // See
   // https://ihr.iho.int/articles/estimation-of-nautical-chart-datum-by-the-statistical-method-in-micro-and-meso-tidal-regime-an-alternative-to-the-balay-harmonic-method/
   // for information on how Lowest Astronomical Tides are calculated.
@@ -201,7 +220,10 @@ function diurnal_inequality(constituents: Map<string, TidalStationConstituent>, 
   return Number((M2 - (O1 + K1)).toFixed(0)) % 360;
 }
 
-function balay(station_name: string, constituents: Map<string, TidalStationConstituent>) {
+function balay(
+  station_name: string,
+  constituents: Map<string, TidalStationConstituent>,
+) {
   // See
   // https://ihr.iho.int/articles/estimation-of-nautical-chart-datum-by-the-statistical-method-in-micro-and-meso-tidal-regime-an-alternative-to-the-balay-harmonic-method/
   // for information on how Lowest Astronomical Tides are calculated.
@@ -255,7 +277,9 @@ function balay(station_name: string, constituents: Map<string, TidalStationConst
   const P1 = Number(P1_ob.amp);
 
   const C1 = courtier_criterion(constituents, station_name);
-  if (C1 === null) { return 0;}
+  if (C1 === null) {
+    return 0;
+  }
 
   let Z0;
 
@@ -263,28 +287,30 @@ function balay(station_name: string, constituents: Map<string, TidalStationConst
     console.warn(`Invalid C1 value: ${C1} for ${station_name} `);
     Z0 = 0;
   } else if (C1 > 0 && C1 <= 0.25) {
-    Z0 = ((M2 + S2 + N2 + K2) / 100);
+    Z0 = (M2 + S2 + N2 + K2) / 100;
   } else if (C1 > 0.25 && C1 <= 1.5) {
     //console.log((M2 + S2 + N2 + K2).toFixed(3));
     //console.log((M2 + S2 + N2).toFixed(3));
     //console.log((M2 + S2 + K1 + O1 + N2).toFixed(3));
     //console.log((M2 + S2 + K1 + O1 + P1).toFixed(3));
     const _2K = diurnal_inequality(constituents, station_name);
-    if (_2K === null) { return 0;}
+    if (_2K === null) {
+      return 0;
+    }
     if (_2K === 0) {
       console.info(`_2K == 0 for ${station_name}`);
-      Z0 = ((M2 + S2 + N2) / 100);
+      Z0 = (M2 + S2 + N2) / 100;
     } else if (_2K === 180) {
       console.info(`_2K == 180 for ${station_name}`);
-      Z0 = ((M2 + S2 + K1 + O1 + N2) / 100);
+      Z0 = (M2 + S2 + K1 + O1 + N2) / 100;
     } else {
       console.log(_2K);
-      Z0 = ((M2 + S2 + K1 + O1 + P1) / 100);
+      Z0 = (M2 + S2 + K1 + O1 + P1) / 100;
     }
-  } else if ((C1 > 1.5 && C1 <= 3)) {
-    Z0 = ((M2 + S2 + K1 + O1) / 100);
+  } else if (C1 > 1.5 && C1 <= 3) {
+    Z0 = (M2 + S2 + K1 + O1) / 100;
   } else {
-    Z0 = ((M2 + S2 + K1 + O1 + P1) / 100);
+    Z0 = (M2 + S2 + K1 + O1 + P1) / 100;
   }
 
   console.log(
@@ -299,12 +325,13 @@ function get_station_harmonic(
   idx_label: string,
   timezone: string,
   stations: TidalStations,
+  station_metadata: StationMetadata,
 ): string[] {
   //console.log(country, idx_label, timezone);
   //console.log(stations.get(country));
 
   const country_stations = stations.get(country);
-  if(!country_stations) {
+  if (!country_stations) {
     return [];
   }
   const lines: string[] = [];
@@ -313,7 +340,8 @@ function get_station_harmonic(
   lines.push("#");
   lines.push("#");
 
-  for (const [station_name, station] of country_stations) {
+  for (let [station_name, station] of country_stations) {
+    station_name = translate_station_name(station_name, station_metadata);
     lines.push(`# lon: ${station.get("lon")}   lat: ${station.get("lat")}`);
     lines.push(`# datum_information: ${station.get("datum_information")}`);
     lines.push(`# start_date: ${station.get("start_date")}`);
@@ -322,7 +350,9 @@ function get_station_harmonic(
     lines.push(`${station_name}, ${region_names[2]}`);
     lines.push(`${timezone} :test/timezone`);
 
-    const constituents = station.get("constituents") as TidalStationConstituents;
+    const constituents = station.get(
+      "constituents",
+    ) as TidalStationConstituents;
 
     const datum = balay(station_name, constituents);
     lines.push(`${datum} meters`);
@@ -386,18 +416,20 @@ function get_station_idxs(
   country_name: string,
   sub_region_name: string,
   stations: TidalStations,
+  station_metadata: StationMetadata,
   timezone: string,
 ): string[] {
   const lines: string[] = [];
   const stations_in_country = stations.get(country);
-  if(!stations_in_country) {
+  if (!stations_in_country) {
     return [];
   }
 
-  for (const [stations_name, station] of stations_in_country) {
+  for (let [station_name, station] of stations_in_country) {
+    station_name = translate_station_name(station_name, station_metadata);
     const lat = station.get("lat");
     const lon = station.get("lon");
-    let line = `T${idx_label} ${lon} ${lat} ${timezone} ${stations_name}, ${country_name}`;
+    let line = `T${idx_label} ${lon} ${lat} ${timezone} ${station_name}, ${country_name}`;
     lines.push(line);
   }
 
@@ -408,6 +440,7 @@ function download_harmonic_idx(
   country_details: CountryDetails,
   selected_countries: CountriesFlat,
   stations: TidalStations,
+  station_metadata: StationMetadata,
   translate,
 ) {
   let lines: string[] = [];
@@ -488,6 +521,7 @@ function download_harmonic_idx(
           country_name,
           sub_region_name,
           stations,
+          station_metadata,
           timezone,
         );
         lines = lines.concat(new_lines);
@@ -495,12 +529,28 @@ function download_harmonic_idx(
     }
   }
 
-  upload_file("HARMONICS.idx", lines.join("\n"));
+  pull_file("HARMONICS.idx", lines.join("\n"));
+}
+
+function translate_station_name(
+  name: string,
+  station_metadata: StationMetadata,
+): string {
+  const station = station_metadata.get(name);
+  if (!station) {
+    return name;
+  }
+  const new_name = station.get("human_name");
+  if (!new_name) {
+    return name;
+  }
+  return new_name;
 }
 
 export function download(
   country_details: CountryDetails,
   stations: TidalStations,
+  station_metadata: StationMetadata,
 ) {
   // Need to re-calculate since the selected countries might have changed.
   const [selected_regions_nested, selected_countries] =
@@ -508,11 +558,18 @@ export function download(
 
   const translate = translate_regions(country_details, selected_countries);
 
-  download_harmonic(country_details, selected_countries, stations, translate);
+  download_harmonic(
+    country_details,
+    selected_countries,
+    stations,
+    station_metadata,
+    translate,
+  );
   download_harmonic_idx(
     country_details,
     selected_countries,
     stations,
+    station_metadata,
     translate,
   );
 }
