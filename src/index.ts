@@ -1,3 +1,4 @@
+import * as bootstrap from "bootstrap";
 import {
   timezone_callbacks,
   display_countries,
@@ -39,10 +40,10 @@ abstract class PageBase {
     for (const page of PageBase.all_pages) {
       if (window.location.hash === `#${page.hash}`) {
         page.enable_page();
-        if (PageBase.display_warnings) {
-          PageBase.display_warnings();
-        }
       }
+    }
+    if (PageBase.display_warnings) {
+      PageBase.display_warnings();
     }
   }
 
@@ -116,7 +117,7 @@ abstract class PageBase {
     return this;
   }
 
-  protected display_warnings() {
+  protected static display_warnings() {
     if (PageBase.warnings.length === 0) {
       return;
     }
@@ -265,7 +266,7 @@ class PageConfig extends PageBase {
     PageBase.country_details = country_attributes(PageBase.stations.stations);
     display_countries(PageBase.country_details);
     this.enable_links(true);
-    this.display_warnings();
+    PageBase.display_warnings();
   }
 }
 

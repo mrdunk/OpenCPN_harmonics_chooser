@@ -8,7 +8,7 @@
   "source": "./src/",
   "scripts": {
     "clean": "rm dist/bundle.js",
-    "format-check": "prettier ./src/**/* --check . & tsc --downlevelIteration --noEmit",
+    "format-check": "prettier ./src/**/* --check . & tsc --downlevelIteration --noEmit --project ./tsconfig.json",
     "format": "prettier ./src/**/* --write .",
     "start": "parcel src/index.html",
     "build-prod": "parcel build src/index.html"

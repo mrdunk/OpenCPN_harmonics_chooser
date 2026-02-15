@@ -3,12 +3,17 @@ import { CountryDetails } from "./types";
 function click_checkbox(event: Event) {
   let checkbox = event.target as HTMLInputElement;
   if (checkbox && checkbox.type !== "checkbox" && checkbox.parentNode) {
-    for (const child of checkbox.parentNode.children as HTMLCollection) {
-      if (child.type === "checkbox") {
+    for (const child of Array.from(checkbox.parentNode.children)) {
+      if ((child as HTMLInputElement).type === "checkbox") {
         checkbox = child as HTMLInputElement;
         break;
       }
     }
+    //Array.from(checkbox.parentNode.children).forEach((child: HTMLInputElement) => {
+    //  if (child.type === "checkbox") {
+    //    checkbox = child as HTMLInputElement;
+    //  }
+    //});
     checkbox.checked = !checkbox.checked;
   }
 

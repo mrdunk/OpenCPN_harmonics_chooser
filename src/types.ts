@@ -99,6 +99,17 @@ export type ParsedStationLine = {
 
 export type ParsedStationLineKey = keyof ParsedStationLine;
 
+/* An object containing maps to which translate between different name types. */
+export type TranslateRegion = {
+  region_full_to_idx: Map<string, string>;
+  region_idx_to_full: Map<string, string>;
+  sub_region_full_to_idx: Map<string, string>; 
+  sub_region_idx_to_full: Map<string, string>; 
+  country_cca3_to_full: Map<string, string>; 
+  country_cca3_to_idx: Map<string, string>; 
+  country_idx_to_cca3: Map<string, string>; 
+};
+
 /*
  */
 export type StationMetadata = Map<string, Map<string, string>>;
