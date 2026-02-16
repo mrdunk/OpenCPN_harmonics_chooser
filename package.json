@@ -11,7 +11,7 @@
     "format-check": "prettier ./src/**/* --check . & tsc --downlevelIteration --noEmit --project ./tsconfig.json",
     "format": "prettier ./src/**/* --write .",
     "start": "parcel src/index.html",
-    "build-prod": "parcel build --public-url /dist/ src/index.html"
+    "build-prod": "parcel build --public-url ./ src/index.html"
   },
   "dependencies": {
     "bootstrap": "^5.3.8",
