@@ -11,10 +11,10 @@ import {
 } from "./parse_data";
 import { generate_summary } from "./summary";
 import { download } from "./download";
-import { DataUpload } from "./file_upload";
+import { UploadBase, UploadDefault, UploadFile } from "./file_upload";
 import { CountryDetails, StationMetadata, TidalStations } from "./types";
 
-const sw_version = "v0.1.0";
+const sw_version = "v0.1.1";
 
 /* Base class for the App's various pages. */
 abstract class PageBase {
@@ -31,8 +31,9 @@ abstract class PageBase {
   static country_details: CountryDetails;
   static stations: ParseStations;
   static station_metadata: StationMetadata;
-  static data_upload: DataUpload;
-  static metadata_upload: DataUpload;
+  //static data_upload: UploadFile;
+  static data_upload: UploadBase;
+  static metadata_upload: UploadFile;
 
   /* Will disable all pages except the one matching the URLs hash value. */
   static hashchange() {
@@ -123,7 +124,7 @@ abstract class PageBase {
     }
 
     const modal_html = document.getElementById("warningModal");
-    if(!modal_html) {
+    if (!modal_html) {
       return;
     }
 
@@ -134,7 +135,7 @@ abstract class PageBase {
       modal = new bootstrap.Modal(modal_html, options);
     }
     const modal_body = modal_html.querySelector(".modal-body");
-    if(!modal_body) {
+    if (!modal_body) {
       return;
     }
 
@@ -197,29 +198,42 @@ class PageImport extends PageBase {
   button_visible: boolean = true;
   turn_on: string[] = ["page-config"];
   turn_off: string[] = ["page-config", "page-summary", "page-download"];
+  first_visit: boolean = true;
 
   public enable_page() {
     super.enable_page();
 
-    if (PageBase.data_upload) {
-      // Already configured the file upload.
-      // Everything else happens via callback.
-      return this;
+    if (this.first_visit) {
+      this.enable_default_upload();
+      this.enable_manual_upload();
     }
 
-    PageBase.data_upload = new DataUpload(
+    this.enable_links(true);
+    this.first_visit = false;
+    return this;
+  }
+
+  private enable_default_upload() {
+    console.log("enable_default_upload");
+    this.enable_links(true);
+    if (this.first_visit) {
+      PageBase.data_upload = new UploadDefault();
+    }
+  }
+
+  private enable_manual_upload() {
+    console.log("enable_manual_upload");
+    this.enable_links(false);
+
+    PageBase.data_upload = new UploadFile(
       "harmonic",
       this.enable_links.bind(this),
     );
 
-    if (PageBase.metadata_upload) {
-      // Already configured the file upload.
-      // Everything else happens via callback.
-      return this;
-    }
-    PageBase.metadata_upload = new DataUpload("metadata");
-
-    return this;
+    PageBase.data_upload = new UploadFile(
+      "metadata",
+      this.enable_links.bind(this),
+    );
   }
 }
 
@@ -237,25 +251,27 @@ class PageConfig extends PageBase {
     super.enable_page();
 
     const [metadata, warnings] = parse_station_metadata(
-      PageBase.metadata_upload.imported_data,
+      PageBase.data_upload.get_imported_data(),
     );
     PageBase.station_metadata = metadata;
     PageBase.warnings.push(...warnings);
 
-    if (this.data_version === PageBase.data_upload.version) {
+    if (this.data_version === PageBase.data_upload.get_version()) {
       // No change in station data since last time we visited page.
       return this;
     }
-    this.data_version = PageBase.data_upload.version;
+    this.data_version = PageBase.data_upload.get_version();
 
     timezone_callbacks();
     clear_countries();
 
-    const worker = new Worker(new URL("worker.js", import.meta.url), {
-      type: "module",
-    });
-    worker.postMessage([PageBase.data_upload.imported_data]);
-    worker.onmessage = this.worker_callback.bind(this);
+    if (true) {
+      const worker = new Worker(new URL("worker.js", import.meta.url), {
+        type: "module",
+      });
+      worker.postMessage([PageBase.data_upload.get_imported_data()]);
+      worker.onmessage = this.worker_callback.bind(this);
+    }
 
     return this;
   }
@@ -301,17 +317,21 @@ class PageDownload extends PageBase {
   button_visible: boolean = false;
   turn_on: string[] = [];
   turn_off: string[] = [];
+  first_visit: boolean = true;
 
   public enable_page() {
     super.enable_page();
-    const download_button = $("a#download-now").click(() => {
-      download(
-        PageBase.country_details,
-        PageBase.stations.stations,
-        PageBase.station_metadata,
-      );
-    });
+    if (this.first_visit) {
+      const download_button = $("a#download-now").click(() => {
+        download(
+          PageBase.country_details,
+          PageBase.stations.stations,
+          PageBase.station_metadata,
+        );
+      });
+    }
 
+    this.first_visit = false;
     return this;
   }
 }

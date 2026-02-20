@@ -456,7 +456,7 @@ function download_harmonic_idx(
   let header_abbreviations =
     "# Region and Country abbreviations used later in the Station entries.\n";
   header_abbreviations += "";
-  header_abbreviations += "XREF  # Needed for correct funtionality.";
+  header_abbreviations += "XREF  # Needed for correct functionality.";
 
   let help_stations =
     '# The format of the tidal measuring stations is: "ID Lon Lat TimeZone Name".\n';

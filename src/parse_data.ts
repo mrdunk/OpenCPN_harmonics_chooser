@@ -1,6 +1,6 @@
 import Papa from "papaparse";
 import world_countries from "world-countries";
-import countries_and_timezones from "countries-and-timezones";
+import * as countries_and_timezones from "countries-and-timezones";
 import {
   CountryDetails,
   TidalStations,
@@ -11,7 +11,7 @@ import {
   ParsedStationLine,
   ParsedStationLineKey,
   StationMetadata,
-  StationMetadataAndWarn
+  StationMetadataAndWarn,
 } from "./types";
 
 export function parse_station_metadata(
@@ -24,15 +24,23 @@ export function parse_station_metadata(
     let entries_count = 0;
     let new_entries_count = 0;
 
-    const [filetype, data, filename] = csv as [string, string, string];
+    const [filename, data_type, file_type, data] = csv as [
+      string,
+      string,
+      string,
+      string,
+    ];
+    if (data_type != "metadata") {
+      // File is one of the harmonics constants files.
+      continue;
+    }
     const parsed: Papa.ParseResult<any> = Papa.parse(data, {
       header: true,
       skipEmptyLines: true,
     });
-    console.log(parsed);
 
     if (parsed.errors.length > 0) {
-      console.warn(`Errors parsing the main data file: ${parsed.errors}`);
+      console.warn(`Errors parsing the metadata file: ${parsed.errors}`);
       warnings.push(
         `Metadata file: ${filename} has incorrect format.<br/>This may result in poor station names.`,
       );
@@ -42,7 +50,10 @@ export function parse_station_metadata(
     const required_keys = ["SITE NAME", "FILE NAME"];
     const missing_keys = [];
     for (const required_key of required_keys) {
-      if (parsed.meta.fields === undefined || !parsed.meta.fields.includes(required_key)) {
+      if (
+        parsed.meta.fields === undefined ||
+        !parsed.meta.fields.includes(required_key)
+      ) {
         missing_keys.push(required_key);
       }
     }
@@ -130,19 +141,26 @@ export class ParseStations {
     this.stations = new Map();
 
     this.raw_data.forEach((element) => {
-      const [file_type, csv, filename] = element;
-      if (csv.length > 0) {
-        this.parse_data(filename, csv);
+      const [filename, data_type, file_type, csv] = element;
+      if (data_type === "harmonic") {
+        if (csv.length > 0) {
+          this.parse_data(filename, csv);
+        }
       }
     });
 
     console.info(
-      `Found: ${this.harmonics_data.length} Harmonics Contituents in all files.`,
+      `Found: ${this.harmonics_data.length} Harmonic Constituents in all files.`,
     );
 
     this.consolidate_stations();
 
     console.info(`Consolidated to: ${this.length} individual stations;`);
+    if (this.length === 0) {
+      this.warnings.push(
+        'No Tidal Stations found. Return to the "Import" page.',
+      );
+    }
   }
 
   // Turn csv data into a JS list of harmonic constituents.
@@ -169,8 +187,10 @@ export class ParseStations {
     ];
     const missing_keys = [];
     for (const required_key of required_keys) {
-      if (parsed.meta.fields === undefined || 
-        !parsed.meta.fields.includes(required_key)) {
+      if (
+        parsed.meta.fields === undefined ||
+        !parsed.meta.fields.includes(required_key)
+      ) {
         missing_keys.push(required_key);
       }
     }
@@ -247,7 +267,7 @@ export class ParseStations {
     }
     if (error_count > 0) {
       this.warnings.push(
-        `${error_count} errors while formatting tidal stations. Look at browser's Web Developer's console for deatins on which station(s).`,
+        `${error_count} errors while formatting tidal stations. Look at browser's Web Developer's console for deatils on which station(s).`,
       );
     }
   }
