@@ -17,6 +17,15 @@
 
     <title>OpenCPN harmonic file generator.</title>
   </head>
+
+  <style>
+    .accordion-button.collapsed {
+      background: grey;
+    }
+    .accordion-button.collapsed::after {
+    }
+  </style>
+
   <body>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -97,6 +106,17 @@
           You'll need to download such a data set to your local device before
           making use of this app.
         </p>
+        <p class="lead">
+          The data is far from perfect. Multiple entries appear for many stations.
+          Only the first station that OpenCPN finds in the file for each Lon/Lat
+          position will be displayed. Also positions are not always correct.<br/>
+          This web-app attempts to calculate the Lowest Astronomical Tide to use
+          as a datum point for each station. This will not always match published
+          chart datum for your region and datum results are completely incorrect
+          for some stations.<br/>
+          <strong>In summary: Verify location, height and timing of all tidal
+            stations calculated by this app.</strong>
+        </p>
         <hr class="my-4" />
         <p class="lead">
           The
@@ -132,90 +152,155 @@
 
     <div id="page-import" class="d-none">
       <div class="container">
-        <p class="lead">
-          Before completing this stage you'll need a data file of tidal harmonic
-          constituents downloaded to your local device and formatted into a
-          suitable structure.
-        </p>
-        <p class="lead">
-          If you have decided to make use of the
-          <a href="https://www.seanoe.org/data/00980/109129/">TICON-4</a> data
-          set, go to that site and download a copy to your device which can then
-          be uploaded to this app using the button below.
-        </p>
-        <p class="lead">
-          The "tide_gauge_name" used in the TICON-4 data sets are not optimized
-          for human readability. TICON-4 is based on the
-          <a href="https://gesla787883612.wordpress.com/downloads/">GESLA</a>
-          data. That page exports a file labeled "GESLA-4 CSV META-DATA FILE".
-          That file can also be provided to this app which will automatically
-          translate the station names to a more human readable format.
-        </p>
-      </div>
-      <div class="container">
-        <div class="row justify-content-lg-center">
-          <div class="col-lg-6">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">Main data file(s) (Required)</h5>
-                <h6 class="card-subtitle mb-2 text-muted">
-                  Main .csv file containing tidal station harmonic
-                  constituents.<br />
-                  Expected to be in the same format as the TICON-4 data set.<br />
-                  If multiple files are selected, it is assumed they contain
-                  different stations and all will be used.
-                </h6>
-                <div class="card-text">
-                  <div id="imported-harmonic-files">
-                    <div class="row border">
-                      <div class="col-3">
-                        <input
-                          type="file"
-                          id="select-harmonic-file"
-                          name="select-harmonic-file"
-                          accept=".csv"
-                          class="d-none"
-                        />
-                        <label
-                          for="select-harmonic-file"
-                          id="select-harmonic-file-label"
-                          class="btn btn-primary btn-sm"
-                          >Add file</label
-                        >
-                      </div>
-                    </div>
-                  </div>
-                </div>
+        <div class="accordion" id="selectDataSource">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#dataSourceDefault"
+                aria-expanded="true"
+                aria-controls="dataSourceDefault"
+              >
+                <strong>Default.</strong>&nbsp;Use TICON-4 data embedded in this
+                project.
+              </button>
+            </h2>
+            <div
+              id="dataSourceDefault"
+              class="accordion-collapse collapse show"
+              data-bs-parent="#selectDataSource"
+            >
+              <div class="accordion-body">
+                <p>Use the following built in data files:</p>
+                <div id="form-check"></div>
               </div>
             </div>
           </div>
-          <div class="col-lg-6">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">Meta data file(s). (Optional)</h5>
-                <h6 class="card-subtitle mb-2 text-muted">
-                  Meta-data .csv file containing improved name mapping.<br />
-                  Expected to be in the same format as the "GESLA-4 CSV
-                  META-DATA FILE".<br />
-                  If multiple files are selected, it is assumed they contain
-                  different stations and all will be used.
-                </h6>
-                <div id="imported-metadata-files">
-                  <div class="row border">
-                    <div class="col-3">
-                      <input
-                        type="file"
-                        id="select-metadata-file"
-                        name="select-metadata-file"
-                        accept=".csv"
-                        class="d-none"
-                      />
-                      <label
-                        for="select-metadata-file"
-                        id="select-metadata-file-label"
-                        class="btn btn-primary btn-sm"
-                        >Add file</label
-                      >
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#dataSourceManual"
+                aria-expanded="false"
+                aria-controls="dataSourceManual"
+              >
+                <strong>Advanced.</strong>&nbsp;Use local data files.
+              </button>
+            </h2>
+            <div
+              id="dataSourceManual"
+              class="accordion-collapse collapse"
+              data-bs-parent="#selectDataSource"
+            >
+              <div class="accordion-body">
+                <div class="container">
+                  <p class="lead">
+                    If choosing this option you'll need a data file of tidal
+                    harmonic constituents downloaded to your local device and
+                    formatted into a suitable structure.
+                  </p>
+                  <p class="lead">
+                    The required format is the same as the
+                    <a href="https://www.seanoe.org/data/00980/109129/"
+                      >TICON-4</a
+                    >
+                    data set. Providing future versions of TICON data use the
+                    same format, it should be possible to manually provide
+                    future versions using this option.
+                  </p>
+                  <p class="lead">
+                    If the "tide_gauge_name" field in your data set is not
+                    optimized for human readability, a metadata file can also be
+                    provided to map the name in the harmonic constituents file
+                    to a human readable one. The expected file format matches
+                    the
+                    <a href="https://gesla787883612.wordpress.com/downloads/"
+                      >GESLA</a
+                    >
+                    data that TICON-4 is based on. Look at "GESLA-4 CSV
+                    META-DATA FILE" for an example.
+                  </p>
+                </div>
+                <div class="container">
+                  <div class="row justify-content-lg-center">
+                    <div class="col-lg-6">
+                      <div class="card">
+                        <div class="card-body">
+                          <h5 class="card-title">
+                            Main data file(s) (Required)
+                          </h5>
+                          <h6 class="card-subtitle mb-2 text-muted">
+                            Main .csv file containing tidal station harmonic
+                            constituents.<br />
+                            Expected to be in the same format as the TICON-4
+                            data set.<br />
+                            If multiple files are selected, it is assumed they
+                            contain different stations and all will be used.
+                          </h6>
+                          <div class="card-text">
+                            <div id="imported-harmonic-files">
+                              <div class="row border">
+                                <div class="col-3">
+                                  <input
+                                    type="file"
+                                    id="select-harmonic-file"
+                                    name="select-harmonic-file"
+                                    accept=".csv"
+                                    class="d-none"
+                                  />
+                                  <label
+                                    for="select-harmonic-file"
+                                    id="select-harmonic-file-label"
+                                    class="btn btn-primary btn-sm"
+                                    >Add file</label
+                                  >
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-6">
+                      <div class="card">
+                        <div class="card-body">
+                          <h5 class="card-title">
+                            Meta data file(s). (Optional)
+                          </h5>
+                          <h6 class="card-subtitle mb-2 text-muted">
+                            Meta-data .csv file containing improved name
+                            mapping.<br />
+                            Expected to be in the same format as the "GESLA-4
+                            CSV META-DATA FILE".<br />
+                            If multiple files are selected, it is assumed they
+                            contain different stations and all will be used.
+                          </h6>
+                          <div id="imported-metadata-files">
+                            <div class="row border">
+                              <div class="col-3">
+                                <input
+                                  type="file"
+                                  id="select-metadata-file"
+                                  name="select-metadata-file"
+                                  accept=".csv"
+                                  class="d-none"
+                                />
+                                <label
+                                  for="select-metadata-file"
+                                  id="select-metadata-file-label"
+                                  class="btn btn-primary btn-sm"
+                                  >Add file</label
+                                >
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -232,12 +317,7 @@
           <div class="col-lg-12">
             <div class="card">
               <div class="card-body">
-                Configuration settings for generating your Harmonics files.<br />
-                When you have finished selecting, click ahead to the
-                <a href="#page-summary" class="btn btn-primary btn-sm"
-                  >Summary</a
-                >
-                section.
+                Configuration settings for generating your Harmonics files.
               </div>
             </div>
           </div>
@@ -412,7 +492,7 @@
               aria-label="Close"
             ></button>
           </div>
-          <div class="modal-body">Test modal.</div>
+          <div class="modal-body">Problems found.</div>
           <div class="modal-footer">
             <button
               type="button"

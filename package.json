@@ -4,14 +4,14 @@
   "description": "",
   "keywords": [],
   "author": "dlaw@gmail.com",
-  "license": "ISC",
+  "license": "GNU3",
   "source": "./src/",
   "scripts": {
-    "clean": "rm dist/bundle.js",
+    "clean": "rm -rf dist/ & rm -rf docs/",
     "format-check": "prettier ./src/**/* --check . & tsc --downlevelIteration --noEmit --project ./tsconfig.json",
     "format": "prettier ./src/**/* --write .",
     "start": "parcel src/index.html",
-    "build-prod": "parcel build src/index.html"
+    "build-prod": "parcel build --public-url ./ src/index.html && rm -rf ./docs && cp -r ./static/* ./dist/ && cp -r ./dist ./docs"
   },
   "dependencies": {
     "bootstrap": "^5.3.8",
