@@ -228,91 +228,94 @@ function balay(
   // See
   // https://ihr.iho.int/articles/estimation-of-nautical-chart-datum-by-the-statistical-method-in-micro-and-meso-tidal-regime-an-alternative-to-the-balay-harmonic-method/
   // for information on how Lowest Astronomical Tides are calculated.
-  const M2_ob = constituents.get("M2");
-  const S2_ob = constituents.get("S2");
-  const N2_ob = constituents.get("N2");
-  const K2_ob = constituents.get("K2");
-  const K1_ob = constituents.get("K1");
-  const O1_ob = constituents.get("O1");
-  const P1_ob = constituents.get("P1");
+  //const M2_ob = constituents.get("M2");
+  //const S2_ob = constituents.get("S2");
+  //const N2_ob = constituents.get("N2");
+  //const K2_ob = constituents.get("K2");
+  //const K1_ob = constituents.get("K1");
+  //const O1_ob = constituents.get("O1");
+  //const P1_ob = constituents.get("P1");
 
-  if (!M2_ob) {
-    console.warn(`No M2 constituent for ${station_name}`);
-    return null;
-  }
+  //if (!M2_ob) {
+  //  console.warn(`No M2 constituent for ${station_name}`);
+  //  return null;
+  //}
 
-  if (!S2_ob) {
-    console.warn(`No S2 constituent for ${station_name}`);
-    return null;
-  }
+  //if (!S2_ob) {
+  //  console.warn(`No S2 constituent for ${station_name}`);
+  //  return null;
+  //}
 
-  if (!N2_ob) {
-    console.warn(`No N2 constituent for ${station_name}`);
-    return null;
-  }
+  //if (!N2_ob) {
+  //  console.warn(`No N2 constituent for ${station_name}`);
+  //  return null;
+  //}
 
-  if (!K2_ob) {
-    console.warn(`No K2 constituent for ${station_name}`);
-    return null;
-  }
+  //if (!K2_ob) {
+  //  console.warn(`No K2 constituent for ${station_name}`);
+  //  return null;
+  //}
 
-  if (!K1_ob) {
-    console.warn(`No K1 constituent for ${station_name}`);
-    return null;
-  }
-  if (!O1_ob) {
-    console.warn(`No O1 constituent for ${station_name}`);
-    return null;
-  }
-  if (!P1_ob) {
-    console.warn(`No P1 constituent for ${station_name}`);
-    return null;
-  }
+  //if (!K1_ob) {
+  //  console.warn(`No K1 constituent for ${station_name}`);
+  //  return null;
+  //}
+  //if (!O1_ob) {
+  //  console.warn(`No O1 constituent for ${station_name}`);
+  //  return null;
+  //}
+  //if (!P1_ob) {
+  //  console.warn(`No P1 constituent for ${station_name}`);
+  //  return null;
+  //}
 
-  const M2 = Number(M2_ob.amp);
-  const S2 = Number(S2_ob.amp);
-  const N2 = Number(N2_ob.amp);
-  const K2 = Number(K2_ob.amp);
-  const K1 = Number(K1_ob.amp);
-  const O1 = Number(O1_ob.amp);
-  const P1 = Number(P1_ob.amp);
+  //const M2 = Number(M2_ob.amp);
+  //const S2 = Number(S2_ob.amp);
+  //const N2 = Number(N2_ob.amp);
+  //const K2 = Number(K2_ob.amp);
+  //const K1 = Number(K1_ob.amp);
+  //const O1 = Number(O1_ob.amp);
+  //const P1 = Number(P1_ob.amp);
 
   const C1 = courtier_criterion(constituents, station_name);
-  if (C1 === null) {
-    return 0;
-  }
+  let req_constituents = [];
 
-  let Z0;
-
-  if (C1 <= 0) {
+  if (C1 === null || C1 <= 0) {
     console.warn(`Invalid C1 value: ${C1} for ${station_name} `);
-    Z0 = 0;
+    return 0;
   } else if (C1 > 0 && C1 <= 0.25) {
-    Z0 = (M2 + S2 + N2 + K2) / 100;
+    req_constituents = ["M2", "S2", "N2", "K2"];
   } else if (C1 > 0.25 && C1 <= 1.5) {
-    //console.log((M2 + S2 + N2 + K2).toFixed(3));
-    //console.log((M2 + S2 + N2).toFixed(3));
-    //console.log((M2 + S2 + K1 + O1 + N2).toFixed(3));
-    //console.log((M2 + S2 + K1 + O1 + P1).toFixed(3));
     const _2K = diurnal_inequality(constituents, station_name);
     if (_2K === null) {
       return 0;
     }
     if (_2K === 0) {
       console.info(`_2K == 0 for ${station_name}`);
-      Z0 = (M2 + S2 + N2) / 100;
+      req_constituents = ["M2", "S2", "N2"];
     } else if (_2K === 180) {
       console.info(`_2K == 180 for ${station_name}`);
-      Z0 = (M2 + S2 + K1 + O1 + N2) / 100;
+      req_constituents = ["M2", "S2", "K1", "O1", "N2"];
     } else {
       console.log(_2K);
-      Z0 = (M2 + S2 + K1 + O1 + P1) / 100;
+      req_constituents = ["M2", "S2", "K1", "O1", "P1"];
     }
   } else if (C1 > 1.5 && C1 <= 3) {
-    Z0 = (M2 + S2 + K1 + O1) / 100;
+    req_constituents = ["M2", "S2", "K1", "O1"];
   } else {
-    Z0 = (M2 + S2 + K1 + O1 + P1) / 100;
+    req_constituents = ["M2", "S2", "K1", "O1", "P1"];
   }
+
+  let Z0 = 0;
+  for(const req_constituent of req_constituents) {
+    const constituent = constituents.get(req_constituent);
+    if(constituent) {
+      Z0 += Number(constituent.amp);
+    } else {
+      console.warn(`No ${req_constituent} constituent for ${station_name}`);
+    }
+  }
+  Z0 = Z0 / 100;
 
   console.log(
     `Lowest Astronomical Tide for: ${station_name.padEnd(40)} = ${Z0}m  ${C1}`,
@@ -339,18 +342,20 @@ function get_station_harmonic(
   lines.push("#");
 
   for (let [station_name, station] of country_stations) {
-    station_name = translate_station_name(station_name, station_metadata);
+    const improved_name = translate_station_name(station_name, station_metadata, region_names[2]);
     lines.push(`# lon: ${station.get("lon")}   lat: ${station.get("lat")}`);
     lines.push(`# datum_information: ${station.get("datum_information")}`);
     lines.push(`# start_date: ${station.get("start_date")}`);
     lines.push(`# end_date: ${station.get("end_date")}`);
     lines.push(`# missing_obs: ${station.get("missing_obs")}%`);
-    lines.push(`${station_name}, ${region_names[2]}`);
+    lines.push(improved_name);
     lines.push(`${timezone} :test/timezone`);
 
     const constituents = station.get(
       "constituents",
     ) as TidalStationConstituents;
+
+    console.log(station_name, constituents);
 
     const datum = balay(station_name, constituents);
     lines.push(`${datum} meters`);
@@ -362,6 +367,7 @@ function get_station_harmonic(
         const pha = Number(constituent.pha);
         lines.push(`${constituent_name}  ${amp}  ${pha}`);
       } else {
+        //lines.push("x  0  0");
         lines.push(`${constituent_name}  0  0`);
       }
     }
@@ -424,10 +430,10 @@ function get_station_idxs(
   }
 
   for (let [station_name, station] of stations_in_country) {
-    station_name = translate_station_name(station_name, station_metadata);
+    const improved_name = translate_station_name(station_name, station_metadata, country_name);
     const lat = station.get("lat");
     const lon = station.get("lon");
-    let line = `T${idx_label} ${lon} ${lat} ${timezone} ${station_name}, ${country_name}`;
+    let line = `T${idx_label} ${lon} ${lat} ${timezone} ${improved_name}`;
     lines.push(line);
   }
 
@@ -533,16 +539,17 @@ function download_harmonic_idx(
 function translate_station_name(
   name: string,
   station_metadata: StationMetadata,
+  country_name: string,
 ): string {
   const station = station_metadata.get(name);
   if (!station) {
-    return name;
+    return `${name}, ${country_name}`;
   }
   const new_name = station.get("human_name");
   if (!new_name) {
-    return name;
+    return `${name}, ${country_name}`;
   }
-  return new_name;
+  return `${new_name}, ${country_name}, ${name}`;
 }
 
 export function download(

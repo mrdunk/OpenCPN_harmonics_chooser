@@ -14,7 +14,7 @@ import { download } from "./download";
 import { UploadBase, UploadDefault, UploadFile } from "./file_upload";
 import { CountryDetails, StationMetadata, TidalStations } from "./types";
 
-const sw_version = "v0.1.1";
+const sw_version = "v0.1.2";
 
 /* Base class for the App's various pages. */
 abstract class PageBase {
